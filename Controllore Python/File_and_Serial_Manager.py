@@ -25,6 +25,7 @@ class Manager():
 
         self.refresh_ports()
 
+
     def choose_file(self):
         # Nasconde la finestra principale di tkinter
         self.root.withdraw()

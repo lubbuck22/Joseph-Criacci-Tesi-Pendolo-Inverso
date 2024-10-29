@@ -20,5 +20,10 @@ obs, info = env.reset()
 while True:
     action, _states = model.predict(obs, deterministic=True)
     obs, reward, terminated, truncated, info = env.step(action)
+    PWM_value = env.action_to_PWM(action)
+    [x, x_dot, theta, theta_dot] = env.state
+    force = (env.K/(env.Ra*env.r))*(env.max_nominal_voltage - env.K*x_dot/env.r)
+    torque = env.action_to_torque(action)
+    print(f'PWM: {PWM_value},   Torque: {torque},   Applied Force: {force} N')
     if terminated or truncated:
         obs, info = env.reset()

@@ -94,30 +94,36 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     ):
         self._sutton_barto_reward = sutton_barto_reward
 
-        #### Valori nominali del pendolo 
         self.gravity = 9.81  # Gravità terrestre
-        self.masscart = 0.6  # Massa del carrello
-        self.masspole = 0.1528  # Massa del pendolo
-        self.total_mass = self.masspole + self.masscart  # Massa totale del sistema
-        self.length = 0.2  # Lunghezza del pendolo (in realtà metà della lunghezza effettiva)
-        self.polemass_length = self.masspole * self.length  # Prodotto tra la massa del pendolo e la sua lunghezza
-
-        ##### Valori nominali del motore DC
-        self.max__nominal_voltage = 12.0  # Tensione massima del motore
+    
+        #### Valori nominali 
+        self.masscart_nominal = 0.6  # Massa del carrello
+        self.masspole_nominal = 0.1528  # Massa del pendolo
+        self.length_nominal = 0.2  # Lunghezza del pendolo (in realtà metà della lunghezza effettiva)
+        self.max_nominal_voltage = 12.0  # Tensione massima del motore
         self.Ra_nominal = 180/83  # Resistenza nominale
         self.K_nominal = 18/(83*math.pi)  # Costante elettromeccanica nominale
         self.r_nominal = 0.0145  # Raggio nominale
 
-        self.margin_of_error = 0.05  # Margine di errore per i valori nominali
+        self.uncertainty = 0.05 # Margine di errore per i valori nominali
+        self.noise = 0.05  # Rumore
 
-        ##### Valori reali del motore DC (± self.margin_of_error% di variazione)
-        self.max_voltage = self.max__nominal_voltage*(self.np_random.uniform(1-self.margin_of_error, 1+self.margin_of_error))
-        self.Ra = self.Ra_nominal*(self.np_random.uniform(1-self.margin_of_error, 1+self.margin_of_error))
-        self.K = self.K_nominal*(self.np_random.uniform(1-self.margin_of_error, 1+self.margin_of_error))
-        self.r = self.r_nominal*(self.np_random.uniform(1-self.margin_of_error, 1+self.margin_of_error))
+        #### Valori reali
+        self.masscart = self.apply_error(self.masscart_nominal, self.uncertainty)
+        self.masspole = self.apply_error(self.masspole_nominal, self.uncertainty)
+        self.length = self.apply_error(self.length_nominal, self.uncertainty)
+        self.Ra = self.apply_error(self.Ra_nominal, self.uncertainty)
+        self.K = self.apply_error(self.K_nominal, self.uncertainty)
+        self.r = self.apply_error(self.r_nominal, self.uncertainty)
 
-        self.old_voltage = 0.0  # Tensione precedente applicata
-        self.max_action = 175.0  # Azione massima (PWM)
+        self.max_voltage = self.apply_error(self.max_nominal_voltage, self.noise)
+
+        self.total_mass = self.masspole + self.masscart  # Massa totale del sistema
+        self.polemass_length = self.masspole * self.length  # Prodotto tra la massa del pendolo e la sua lunghezza
+
+        self.old_action = 0.0  # Tensione precedente applicata
+        self.min_action = 40.0 # Minimo valore di PWM
+        self.max_action = 60.0  # Azione massima (Massima deviazione dall'azione minima)
         self.PWM_resolution = 255.0  # Risoluzione del segnale PWM
 
         """ L'Arduino esegue il loop ogni self.tau = 0.005 secondi, ma comunica con Python ogni self.period = 0.05 secondi.
@@ -127,7 +133,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
 
         """ Il codice Arduino traduce il segnale di controllo in un valore PWM secondo la relazione: PWM = torque/5.8824 """
-        self.torque_pwm_constant = 5.8824  # Costante per convertire coppia in valore PWM
+        self.torque_pwm_constant = 5.8824  # Costante per convertire in coppia il valore PWM
 
         # Angolo oltre il quale l'episodio fallisce
         self.theta_threshold_radians = 12 * 2 * math.pi / 360  # ±12° in radianti
@@ -172,22 +178,26 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         """ Poiché c'è sempre un ciclo di ritardo da quando Arduino genera i valori di 
         [x, x_dot, theta, theta_dot] e quando riceve il nuovo segnale di controllo,
         durante quel ciclo Arduino continua ad applicare il vecchio segnale di tensione. """
-        voltage = self.old_voltage
+        old_PWM = self.action_to_PWM(self.old_action)
+        self.max_voltage = self.apply_error(self.max_nominal_voltage, self.noise)
+        voltage = self.max_voltage * old_PWM / self.PWM_resolution
 
          # Calcola la forza applicata in base alla tensione e alle caratteristiche del motore
         force = (self.K/(self.Ra*self.r))*(voltage - self.K*x_dot/self.r)
         x, x_dot, theta, theta_dot = self.apply_force(force)
 
         """ Nei cicli successivi, l'azione scelta determinerà il nuovo segnale di controllo """
+        self.old_action = action
         PWM_value = self.action_to_PWM(action) # Converte l'azione in un valore di onda PWM
 
-        # Ricalcola la forza con la nuova tensione
-        voltage = self.max_voltage * PWM_value / self.PWM_resolution
-        self.old_voltage = voltage
-        force = (self.K/(self.Ra*self.r))*(voltage - self.K*x_dot/self.r)
 
         # Applica la forza per più cicli per simulare l'aggiornamento dello stato
-        for i in range(int(self.period/self.tau) - 1):            
+        for i in range(int(self.period/self.tau) - 1):  
+            # Ricalcola la forza con la nuova tensione
+            self.max_voltage = self.apply_error(self.max_nominal_voltage, self.noise)
+            voltage = self.max_voltage * PWM_value / self.PWM_resolution
+            force = (self.K/(self.Ra*self.r))*(voltage - self.K*x_dot/self.r)
+          
             x, x_dot, theta, theta_dot = self.apply_force(force)
 
         # Aggiorna lo stato del sistema
@@ -265,19 +275,29 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.state = np.array((x, x_dot, theta, theta_dot), dtype=np.float64)
         return [x, x_dot, theta, theta_dot]
 
-
-    """ Mappa l'azione dall'intervallo [0; 2*self.max_action] all'intervallo di onda PWM [-self.max_action; +self.max_action] """
+    """ Mappa l'azione dall'intervallo [0; 2*self.max_action] all'intervallo di onda PWM [-self.max_action - self.min_action; +self.max_action + self.min_action] """
     def action_to_PWM(self, action):
-        PWM_value = (action - self.max_action)
+        normalized_action = (action - self.max_action)
+        PWM_value = normalized_action + (np.sign(normalized_action))*self.min_action
         return PWM_value
-
 
     """ Converte l'azione in coppia applicata al motore """
     def action_to_torque(self, action):
         PWM_value = self.action_to_PWM(action)
         torque = PWM_value*self.torque_pwm_constant
         return torque
-    
+
+    """ Modifica i valori reali dai valori nominale con una variazione percentuale definita dalla variabile self.uncertainty """
+    def apply_error(self, nominal, error):
+        return nominal*(self.np_random.uniform(1-error, 1+error))
+
+    def apply_uncertainty(self):
+        self.masscart = self.apply_error(self.masscart_nominal, self.uncertainty)
+        self.masspole = self.apply_error(self.masspole_nominal, self.uncertainty)
+        self.length = self.apply_error(self.length_nominal, self.uncertainty)
+        self.Ra = self.apply_error(self.Ra_nominal, self.uncertainty)
+        self.K = self.apply_error(self.K_nominal, self.uncertainty)
+        self.r = self.apply_error(self.r_nominal, self.uncertainty)
 
     """ Metodo di reset dell'ambiente """
     def reset(
@@ -295,11 +315,10 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.state = self.np_random.uniform(low=low, high=high, size=(4,))
         self.steps_beyond_terminated = None
 
-        # Applica variazioni ai valori nominali del motore
-        self.max_voltage = self.max__nominal_voltage*(self.np_random.uniform(1-self.margin_of_error, 1+self.margin_of_error))
-        self.r = self.r_nominal*(self.np_random.uniform(1-self.margin_of_error, 1+self.margin_of_error))
-        self.Ra = self.Ra_nominal*(self.np_random.uniform(1-self.margin_of_error, 1+self.margin_of_error))
-        self.K = self.K_nominal*(self.np_random.uniform(1-self.margin_of_error, 1+self.margin_of_error))
+
+        # Applica variazioni ai valori nominali
+        self.apply_uncertainty()
+        
 
         if self.render_mode == "human":
             self.render()

@@ -2,7 +2,7 @@
 
 ### Panoramica del Progetto
 Questo progetto implementa un sistema di pendolo inverso controllato tramite un motore a corrente continua (DC), utilizzando tecniche di apprendimento per rinforzo. Il sistema coinvolge simulazioni, comunicazione con hardware (come Arduino) e modelli di controllo allenati. 
-Questo progetto è stato pensato con Python 3.11.9 e Matlab 2024a in mente.
+Questo progetto è stato pensato con Python 3.11.9 e Matlab 2024a 24.1.0.2689473 in mente.
 La repository contiene i seguenti componenti principali:
 
 1. **Ambiente di Simulazione (basato su Gymnasium)**: `Pendolo_Inverso_DC_Motor.py`

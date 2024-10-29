@@ -10,7 +10,7 @@ MW_arduino_digitalio.o: \
  C:/ProgramData/MATLAB/SupportPackages/R2024a/aCLI/data/packages/arduino/hardware/avr/1.8.3/cores/arduino/Printable.h \
  C:/ProgramData/MATLAB/SupportPackages/R2024a/aCLI/data/packages/arduino/hardware/avr/1.8.3/cores/arduino/USBAPI.h \
  C:/ProgramData/MATLAB/SupportPackages/R2024a/aCLI/data/packages/arduino/hardware/avr/1.8.3/cores/arduino/Arduino.h \
- C:/ProgramData/MATLAB/SupportPackages/R2024a/aCLI/data/packages/arduino/hardware/avr/1.8.3/variants/standard/pins_arduino.h \
+ C:/ProgramData/MATLAB/SupportPackages/R2024a/aCLI/data/packages/arduino/hardware/avr/1.8.3/variants/mega/pins_arduino.h \
  C:/PROGRA~3/MATLAB/SUPPOR~1/R2024a/toolbox/target/SUPPOR~1/ARDUIN~1/include/MW_arduino_digitalio.h \
  C:/Users/josep/OneDrive/Desktop/JOSEPH~1/PENDOL~1/Pendolo_Inverso_ert_rtw/rtwtypes.h
 
@@ -34,7 +34,7 @@ C:/ProgramData/MATLAB/SupportPackages/R2024a/aCLI/data/packages/arduino/hardware
 
 C:/ProgramData/MATLAB/SupportPackages/R2024a/aCLI/data/packages/arduino/hardware/avr/1.8.3/cores/arduino/Arduino.h:
 
-C:/ProgramData/MATLAB/SupportPackages/R2024a/aCLI/data/packages/arduino/hardware/avr/1.8.3/variants/standard/pins_arduino.h:
+C:/ProgramData/MATLAB/SupportPackages/R2024a/aCLI/data/packages/arduino/hardware/avr/1.8.3/variants/mega/pins_arduino.h:
 
 C:/PROGRA~3/MATLAB/SUPPOR~1/R2024a/toolbox/target/SUPPOR~1/ARDUIN~1/include/MW_arduino_digitalio.h:
 

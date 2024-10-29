@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Pendolo_Inverso'.
  *
- * Model version                  : 1.21
+ * Model version                  : 1.23
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Sat Oct 26 10:09:39 2024
+ * C/C++ source code generated on : Tue Oct 29 16:42:45 2024
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: Atmel->AVR
@@ -27,7 +27,7 @@ P_Pendolo_Inverso_T Pendolo_Inverso_P = {
   0.005,
 
   /* Mask Parameter: DiscreteDerivative2_ICPrevScale
-   * Referenced by: '<S12>/UD'
+   * Referenced by: '<S13>/UD'
    */
   0.0,
 
@@ -52,17 +52,17 @@ P_Pendolo_Inverso_T Pendolo_Inverso_P = {
   0.0,
 
   /* Expression: 511.5
-   * Referenced by: '<S13>/Constant1'
+   * Referenced by: '<S14>/Constant1'
    */
   511.5,
 
   /* Expression: 360
-   * Referenced by: '<S13>/Constant'
+   * Referenced by: '<S14>/Constant'
    */
   360.0,
 
   /* Expression: -0.75
-   * Referenced by: '<S13>/RodOffset'
+   * Referenced by: '<S14>/RodOffset'
    */
   -0.75,
 
@@ -82,12 +82,12 @@ P_Pendolo_Inverso_T Pendolo_Inverso_P = {
   0.0375,
 
   /* Expression: pi/180
-   * Referenced by: '<S11>/Gain1'
+   * Referenced by: '<S12>/Gain1'
    */
   0.017453292519943295,
 
   /* Computed Parameter: TSamp_WtEt
-   * Referenced by: '<S12>/TSamp'
+   * Referenced by: '<S13>/TSamp'
    */
   200.0,
 
@@ -111,10 +111,20 @@ P_Pendolo_Inverso_T Pendolo_Inverso_P = {
    */
   0.0,
 
-  /* Expression: 1/2764
-   * Referenced by: '<S4>/Gain'
+  /* Expression: -1380
+   * Referenced by: '<S10>/Constant'
    */
-  0.000361794500723589,
+  -1380.0,
+
+  /* Expression: (0.66)/(1249+1380)
+   * Referenced by: '<S10>/Gain'
+   */
+  0.00025104602510460253,
+
+  /* Expression: -0.33
+   * Referenced by: '<S10>/Constant3'
+   */
+  -0.33,
 
   /* Computed Parameter: TSamp_WtEt_p
    * Referenced by: '<S9>/TSamp'

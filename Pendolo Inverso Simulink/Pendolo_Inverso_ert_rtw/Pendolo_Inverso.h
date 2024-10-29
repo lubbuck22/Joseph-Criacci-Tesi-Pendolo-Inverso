@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Pendolo_Inverso'.
  *
- * Model version                  : 1.21
+ * Model version                  : 1.23
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Sat Oct 26 10:09:39 2024
+ * C/C++ source code generated on : Tue Oct 29 16:42:45 2024
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: Atmel->AVR
@@ -65,10 +65,10 @@
 
 /* Block signals (default storage) */
 typedef struct {
-  real_T FromWorkspace[3];             /* '<S13>/From Workspace' */
+  real_T FromWorkspace[3];             /* '<S14>/From Workspace' */
   real_T rtb_SerialReceive2_o1_m[2];
   real_T DataTypeConversion3;          /* '<S7>/Data Type Conversion3' */
-  real_T Subtract1;                    /* '<S13>/Subtract1' */
+  real_T Subtract1;                    /* '<S14>/Subtract1' */
   real_T rodangle;                     /* '<S7>/Discrete Zero-Pole1' */
   real_T EnableOut;                    /* '<S1>/S-Function Builder' */
   real_T Dir;                          /* '<S1>/S-Function Builder' */
@@ -88,15 +88,10 @@ typedef struct {
   codertarget_arduinobase_int_l_T obj_e;/* '<S7>/Analog Input3' */
   codertarget_arduinobase_block_T obj_e1;/* '<S1>/Digital Output20' */
   codertarget_arduinobase_block_T obj_e5;/* '<S1>/Digital Output19' */
-  codertarget_arduinobase_block_T obj_me;/* '<Root>/Digital Output4' */
-  codertarget_arduinobase_block_T obj_c;/* '<Root>/Digital Output3' */
-  codertarget_arduinobase_block_T obj_p;/* '<Root>/Digital Output2' */
-  codertarget_arduinobase_block_T obj_n;/* '<Root>/Digital Output1' */
-  codertarget_arduinobase_block_T obj_a;/* '<Root>/Digital Output' */
   codertarget_arduinobase_inter_T obj_f;/* '<S1>/PWM3' */
   real_T SFunctionBuilder2_DSTATE;     /* '<S1>/S-Function Builder2' */
   real_T DiscreteZeroPole1_DSTATE;     /* '<S7>/Discrete Zero-Pole1' */
-  real_T UD_DSTATE;                    /* '<S12>/UD' */
+  real_T UD_DSTATE;                    /* '<S13>/UD' */
   real_T DiscreteZeroPole6_DSTATE;     /* '<S7>/Discrete Zero-Pole6' */
   real_T UD_DSTATE_n;                  /* '<S9>/UD' */
   real_T DiscreteZeroPole6_DSTATE_g;   /* '<S4>/Discrete Zero-Pole6' */
@@ -122,11 +117,11 @@ typedef struct {
     void *TimePtr;
     void *DataPtr;
     void *RSimInfoPtr;
-  } FromWorkspace_PWORK;               /* '<S13>/From Workspace' */
+  } FromWorkspace_PWORK;               /* '<S14>/From Workspace' */
 
   struct {
     int_T PrevIndex;
-  } FromWorkspace_IWORK;               /* '<S13>/From Workspace' */
+  } FromWorkspace_IWORK;               /* '<S14>/From Workspace' */
 } DW_Pendolo_Inverso_T;
 
 /* Parameters (default storage) */
@@ -136,7 +131,7 @@ struct P_Pendolo_Inverso_T_ {
                                         */
   real_T DiscreteDerivative2_ICPrevScale;
                               /* Mask Parameter: DiscreteDerivative2_ICPrevScale
-                               * Referenced by: '<S12>/UD'
+                               * Referenced by: '<S13>/UD'
                                */
   real_T DiscreteDerivative_ICPrevScaled;
                               /* Mask Parameter: DiscreteDerivative_ICPrevScaled
@@ -152,13 +147,13 @@ struct P_Pendolo_Inverso_T_ {
                                         * Referenced by: '<Root>/Serial Transmit4'
                                         */
   real_T Constant1_Value;              /* Expression: 511.5
-                                        * Referenced by: '<S13>/Constant1'
+                                        * Referenced by: '<S14>/Constant1'
                                         */
   real_T Constant_Value;               /* Expression: 360
-                                        * Referenced by: '<S13>/Constant'
+                                        * Referenced by: '<S14>/Constant'
                                         */
   real_T RodOffset_Value;              /* Expression: -0.75
-                                        * Referenced by: '<S13>/RodOffset'
+                                        * Referenced by: '<S14>/RodOffset'
                                         */
   real_T DiscreteZeroPole1_A;         /* Computed Parameter: DiscreteZeroPole1_A
                                        * Referenced by: '<S7>/Discrete Zero-Pole1'
@@ -170,10 +165,10 @@ struct P_Pendolo_Inverso_T_ {
                                        * Referenced by: '<S7>/Discrete Zero-Pole1'
                                        */
   real_T Gain1_Gain;                   /* Expression: pi/180
-                                        * Referenced by: '<S11>/Gain1'
+                                        * Referenced by: '<S12>/Gain1'
                                         */
   real_T TSamp_WtEt;                   /* Computed Parameter: TSamp_WtEt
-                                        * Referenced by: '<S12>/TSamp'
+                                        * Referenced by: '<S13>/TSamp'
                                         */
   real_T DiscreteZeroPole6_A;         /* Computed Parameter: DiscreteZeroPole6_A
                                        * Referenced by: '<S7>/Discrete Zero-Pole6'
@@ -187,8 +182,14 @@ struct P_Pendolo_Inverso_T_ {
   real_T Constant_Value_o;             /* Expression: inf
                                         * Referenced by: '<S1>/Constant'
                                         */
-  real_T Gain_Gain;                    /* Expression: 1/2764
-                                        * Referenced by: '<S4>/Gain'
+  real_T Constant_Value_j;             /* Expression: -1380
+                                        * Referenced by: '<S10>/Constant'
+                                        */
+  real_T Gain_Gain;                    /* Expression: (0.66)/(1249+1380)
+                                        * Referenced by: '<S10>/Gain'
+                                        */
+  real_T Constant3_Value;              /* Expression: -0.33
+                                        * Referenced by: '<S10>/Constant3'
                                         */
   real_T TSamp_WtEt_p;                 /* Computed Parameter: TSamp_WtEt_p
                                         * Referenced by: '<S9>/TSamp'
@@ -268,13 +269,13 @@ extern volatile boolean_T runModel;
  * These blocks were eliminated from the model due to optimizations:
  *
  * Block '<S9>/Data Type Duplicate' : Unused code path elimination
- * Block '<S13>/Display' : Unused code path elimination
- * Block '<S13>/Display1' : Unused code path elimination
- * Block '<S13>/Display2' : Unused code path elimination
- * Block '<S13>/Display3' : Unused code path elimination
- * Block '<S13>/Display4' : Unused code path elimination
- * Block '<S10>/Display' : Unused code path elimination
- * Block '<S12>/Data Type Duplicate' : Unused code path elimination
+ * Block '<S14>/Display' : Unused code path elimination
+ * Block '<S14>/Display1' : Unused code path elimination
+ * Block '<S14>/Display2' : Unused code path elimination
+ * Block '<S14>/Display3' : Unused code path elimination
+ * Block '<S14>/Display4' : Unused code path elimination
+ * Block '<S11>/Display' : Unused code path elimination
+ * Block '<S13>/Data Type Duplicate' : Unused code path elimination
  * Block '<S1>/Data Type Conversion1' : Eliminate redundant data type conversion
  */
 
@@ -302,12 +303,13 @@ extern volatile boolean_T runModel;
  * '<S7>'   : 'Pendolo_Inverso/Pendulum Control/Read Angle'
  * '<S8>'   : 'Pendolo_Inverso/Pendulum Control/Selection'
  * '<S9>'   : 'Pendolo_Inverso/Pendulum Control/Check Position/Discrete Derivative'
- * '<S10>'  : 'Pendolo_Inverso/Pendulum Control/Read Angle/Convert3'
- * '<S11>'  : 'Pendolo_Inverso/Pendulum Control/Read Angle/Degrees to Radians2'
- * '<S12>'  : 'Pendolo_Inverso/Pendulum Control/Read Angle/Discrete Derivative2'
- * '<S13>'  : 'Pendolo_Inverso/Pendulum Control/Read Angle/Convert3/Analog to Angle'
- * '<S14>'  : 'Pendolo_Inverso/Pendulum Control/Read Angle/Convert3/Analog to Angle/If Action Subsystem'
- * '<S15>'  : 'Pendolo_Inverso/Pendulum Control/Read Angle/Convert3/Analog to Angle/If Action Subsystem1'
+ * '<S10>'  : 'Pendolo_Inverso/Pendulum Control/Check Position/To meters'
+ * '<S11>'  : 'Pendolo_Inverso/Pendulum Control/Read Angle/Convert3'
+ * '<S12>'  : 'Pendolo_Inverso/Pendulum Control/Read Angle/Degrees to Radians2'
+ * '<S13>'  : 'Pendolo_Inverso/Pendulum Control/Read Angle/Discrete Derivative2'
+ * '<S14>'  : 'Pendolo_Inverso/Pendulum Control/Read Angle/Convert3/Analog to Angle'
+ * '<S15>'  : 'Pendolo_Inverso/Pendulum Control/Read Angle/Convert3/Analog to Angle/If Action Subsystem'
+ * '<S16>'  : 'Pendolo_Inverso/Pendulum Control/Read Angle/Convert3/Analog to Angle/If Action Subsystem1'
  */
 #endif                                 /* Pendolo_Inverso_h_ */
 

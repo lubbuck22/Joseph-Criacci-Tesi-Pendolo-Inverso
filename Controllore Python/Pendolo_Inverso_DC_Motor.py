@@ -1,5 +1,5 @@
 import math
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 
@@ -298,6 +298,11 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.Ra = self.apply_error(self.Ra_nominal, self.uncertainty)
         self.K = self.apply_error(self.K_nominal, self.uncertainty)
         self.r = self.apply_error(self.r_nominal, self.uncertainty)
+
+        ### Ricalcola i valori tenendo conto dell'incertezza
+        self.total_mass = self.masspole + self.masscart  # Massa totale del sistema
+        self.polemass_length = self.masspole * self.length  # Prodotto tra la massa del pendolo e la sua lunghezza
+
 
     """ Metodo di reset dell'ambiente """
     def reset(

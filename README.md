@@ -87,11 +87,13 @@ La repository contiene i seguenti componenti principali:
 ### Come Utilizzare
 
 1. **Calibrazione Pendolo**
-    Prima di iniziare è necessario calibrare correttamente il pendolo. Se questa è la prima calibrazione, è possibile calibrare il pendolo seguendo le istruzzioni contentute nel file `Pendulum_Calibration.slx`. E' poi necessario eseguire i due script `SaveCalibrateData.m` e `LoadData.m`.
+    Prima di iniziare è necessario calibrare correttamente il pendolo.
+    Aprire in Matlab la cartella `Pendolo Inverso Simulink`.
+    Se questa è la prima calibrazione, è possibile calibrare il pendolo seguendo le istruzzioni contentute nel file `Pendulum_Calibration.slx`. E' poi necessario eseguire i due script `SaveCalibrateData.m` e `LoadData.m`.
     Se la calibrazione è già stata eseguita in precedenza allora è possibile eseguire semplicemente lo script `LoadData.m`.
 
 2. **Caricamento del codice su Arduino**
-    Una volta eseguita la calibrazione, e aver caricato nel Matlab Workspace tutti i dati necessari, è possibile caricare il codice di `Pendolo_Inverso.slx` sulla scheda Arduino cliccando il bottone `Build, Deploy & Start` sotto la sezione `Hardware`.
+    Una volta eseguita la calibrazione, e aver caricato nel Matlab Workspace tutti i dati necessari, è possibile caricare il codice di `Pendolo_Inverso.slx` sulla scheda Arduino, aprendo in Matlab la cartella `Pendolo Inverso Simulink` e cliccando il bottone `Build, Deploy & Start` sotto la sezione `Hardware`.
     In caso non fossero, già presenti, è necessario generare il codice C associato ai due blocchi `S-Function Builder`, questo può essere fatto aprendo i due blocchi presenti nel sottosistema `Pendulum Control` e cliccando il tasto `Build`.
 
 3. **Addestrare o Testare il Modello RL**  

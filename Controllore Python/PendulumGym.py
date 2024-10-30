@@ -21,3 +21,4 @@ while True:
     obs, reward, terminated, truncated, info = env.step(action)
     if terminated or truncated:
         obs, info = env.reset()
+        print('ops')

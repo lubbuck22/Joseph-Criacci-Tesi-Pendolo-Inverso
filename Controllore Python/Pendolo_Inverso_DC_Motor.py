@@ -24,20 +24,20 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
     ## Spazio delle azioni
 
-    L'azione è un array con forma `(1,)` che può assumere valori `{0, 1, ..., 2* self.max_action - 1}`. Indica il valore PWM
+    L'azione è un array con forma `(1,)` che può assumere valori `{0, 1, ..., 2* self.max_PWM - 11`. Indica il valore PWM
     della tensione applicata al motore DC.
     
             Azione                 |                Effetto
     _______________________________|_________________________________________________
-    -           0:                 | Valore max_action PWM a sinistra               |
-    -           1:                 | ( max_action - 1 ) PWM a sinistra              |
+    -           0:                 | Valore max_PWM PWM1a sinistra               |
+    -           1:                 | ( max_PWM - 11) PWM a sinistra              |
     .                              |                                                |
     .                              |                                                |
-    - ( 2 * self.max_action ) - 1: | ( max_action - 1 ) PWM a destra                |
-    - ( 2 * self.max_action ):     | Valore max_action PWM a destra                 |
+    - ( 2 * self.max_PWM ) -11: | ( max_PWM - 11) PWM a destra                |
+    - ( 2 * self.max_PWM ): 1   | Valore max_PWM PWM1a destra                 |
     _______________________________|________________________________________________|
 
-    Per questo motivo è importante che la variabile self.max_action sia inizializzata con un valore compreso tra 0 e 255.
+    Per questo motivo è importante che la variabile self.max_PWM sia1inizializzata con un valore compreso tra 0 e 255.
 
     **Nota**: La velocità che viene ridotta o aumentata dalla forza applicata non è fissa e dipende dall'angolo 
     dell'asta. Il centro di gravità del pendolo varia l'energia necessaria per spostare il carrello.
@@ -122,8 +122,8 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.polemass_length = self.masspole * self.length  # Prodotto tra la massa del pendolo e la sua lunghezza
 
         self.old_action = 0.0  # Tensione precedente applicata
-        self.min_action = 40.0 # Minimo valore di PWM
-        self.max_action = 60.0  # Azione massima (Massima deviazione dall'azione minima)
+        self.min_PWM = 50.0 # Minimo valore di PWM
+        self.max_PWM = 110.0  # Massimo valore di PWM
         self.PWM_resolution = 255.0  # Risoluzione del segnale PWM
 
         """ L'Arduino esegue il loop ogni self.tau = 0.005 secondi, ma comunica con Python ogni self.period = 0.05 secondi.
@@ -151,7 +151,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         )
 
         # Spazio delle azioni e delle osservazioni
-        self.action_space = spaces.Discrete(2*int(self.max_action) + 1)
+        self.action_space = spaces.Discrete(2*int(self.PWM_resolution) + 1)
         self.observation_space = spaces.Box(-high, high, dtype=np.float32)
 
         self.render_mode = render_mode
@@ -178,27 +178,22 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         """ Poiché c'è sempre un ciclo di ritardo da quando Arduino genera i valori di 
         [x, x_dot, theta, theta_dot] e quando riceve il nuovo segnale di controllo,
         durante quel ciclo Arduino continua ad applicare il vecchio segnale di tensione. """
-        old_PWM = self.action_to_PWM(self.old_action)
-        self.max_voltage = self.apply_error(self.max_nominal_voltage, self.noise)
-        voltage = self.max_voltage * old_PWM / self.PWM_resolution
-
          # Calcola la forza applicata in base alla tensione e alle caratteristiche del motore
-        force = (self.K/(self.Ra*self.r))*(voltage - self.K*x_dot/self.r)
+        force = self.action_to_force(self.old_action)
         x, x_dot, theta, theta_dot = self.apply_force(force)
+        # Aggiorniamo lo stato a seguito dell'applicazione dell'azione
+        self.state = np.array((x, x_dot, theta, theta_dot), dtype=np.float64)
 
         """ Nei cicli successivi, l'azione scelta determinerà il nuovo segnale di controllo """
         self.old_action = action
-        PWM_value = self.action_to_PWM(action) # Converte l'azione in un valore di onda PWM
-
 
         # Applica la forza per più cicli per simulare l'aggiornamento dello stato
         for i in range(int(self.period/self.tau) - 1):  
             # Ricalcola la forza con la nuova tensione
-            self.max_voltage = self.apply_error(self.max_nominal_voltage, self.noise)
-            voltage = self.max_voltage * PWM_value / self.PWM_resolution
-            force = (self.K/(self.Ra*self.r))*(voltage - self.K*x_dot/self.r)
-          
+            force = self.action_to_force(action)          
             x, x_dot, theta, theta_dot = self.apply_force(force)
+            # Aggiorniamo lo stato a seguito dell'applicazione dell'azione
+            self.state = np.array((x, x_dot, theta, theta_dot), dtype=np.float64)
 
         # Aggiorna lo stato del sistema
         self.state = np.array((x, x_dot, theta, theta_dot), dtype=np.float64)
@@ -271,15 +266,33 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         x_dot = x_dot + x_acc * self.tau
         x = x + x_dot * self.tau
 
-        # Aggiorna lo stato del sistema
-        self.state = np.array((x, x_dot, theta, theta_dot), dtype=np.float64)
-        return [x, x_dot, theta, theta_dot]
+        return x, x_dot, theta, theta_dot
 
-    """ Mappa l'azione dall'intervallo [0; 2*self.max_action] all'intervallo di onda PWM [-self.max_action - self.min_action; +self.max_action + self.min_action] """
+    """ Mappa l'azione in un valore di PWM compreso (in valore assoluto) nell'intervallo [self.min_PWM; self.max_PWM] """
     def action_to_PWM(self, action):
-        normalized_action = (action - self.max_action)
-        PWM_value = normalized_action + (np.sign(normalized_action))*self.min_action
+        PWM_value = (action - self.PWM_resolution)
+
+        abs_value = abs(PWM_value)
+        sign = np.sign(PWM_value)
+
+        if( abs_value >= self.max_PWM):
+            PWM_value = sign*self.max_PWM
+        elif(abs_value <= self.min_PWM):
+            PWM_value = sign*self.min_PWM
+        
         return PWM_value
+    
+    def action_to_force(self, action):
+
+        x, x_dot, theta, theta_dot = self.state
+
+        PWM_value = self.action_to_PWM(action)
+        self.max_voltage = self.apply_error(self.max_nominal_voltage, self.noise)
+        voltage = self.max_voltage * PWM_value / self.PWM_resolution
+        force = (self.K/(self.Ra*self.r))*(voltage - self.K*x_dot/self.r)
+
+        return force
+
 
     """ Converte l'azione in coppia applicata al motore """
     def action_to_torque(self, action):

@@ -90,9 +90,11 @@ def main():
 
     # Crea l'ambiente del CartPole e carica il modello DQN
     env = CartPoleEnv()
+    print("Scegli un modello di allenamento (N.B.: la finestra di dialogo potrebbe essere nascosta)")
     model_file = manager.choose_file()
     model = DQN.load(model_file, env)
 
+    print("Scegli la porta seriale da utilizzare (N.B.: la finestra di dialogo potrebbe essere nascosta)")
     porta_seriale = manager.get_serial_port()
     baud_rate = 912600  # Baud rate per la velocità di comunicazione seriale
 

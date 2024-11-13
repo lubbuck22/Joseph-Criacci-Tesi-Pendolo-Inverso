@@ -10,10 +10,12 @@ manager = Manager()
 
 """ model = DQN("MlpPolicy", env, verbose=1)
 model.learn(total_timesteps=LEARNING_STEP, log_interval=5)
+print("Allenamento completato, salvataggio del modello... (N.B.: la finestra di dialogo potrebbe essere nascosta)")
 model.save(manager.save_file())
 
 del model # remove to demonstrate saving and loading """
 
+print("Scegliere un modello da testare (N.B.: la finestra di dialogo potrebbe essere nascosta)")
 model = DQN.load(manager.choose_file(), env)
 obs, info = env.reset()
 while True:

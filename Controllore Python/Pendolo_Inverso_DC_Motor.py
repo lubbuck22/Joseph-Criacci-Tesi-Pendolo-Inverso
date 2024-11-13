@@ -24,20 +24,20 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
     ## Spazio delle azioni
 
-    L'azione è un array con forma `(1,)` che può assumere valori `{0, 1, ..., 2* self.max_PWM - 11`. Indica il valore PWM
+    L'azione è un array con forma `(1,)` che può assumere valori `{0, 1, ..., 2* self.max_PWM - 1`. Indica il valore PWM
     della tensione applicata al motore DC.
     
-            Azione                 |                Effetto
-    _______________________________|_________________________________________________
+            Azione                 |                Effetto                      |
+    _______________________________|_____________________________________________|
     -           0:                 | Valore max_PWM PWM1a sinistra               |
     -           1:                 | ( max_PWM - 11) PWM a sinistra              |
-    .                              |                                                |
-    .                              |                                                |
-    - ( 2 * self.max_PWM ) -11: | ( max_PWM - 11) PWM a destra                |
-    - ( 2 * self.max_PWM ): 1   | Valore max_PWM PWM1a destra                 |
-    _______________________________|________________________________________________|
+    .                              |                                             |
+    .                              |                                             |
+    - ( 2 * self.max_PWM ) -1:     | ( max_PWM - 11) PWM a destra                |
+    - ( 2 * self.max_PWM ): 1      | Valore max_PWM PWM1a destra                 |
+    _______________________________|_____________________________________________|
 
-    Per questo motivo è importante che la variabile self.max_PWM sia1inizializzata con un valore compreso tra 0 e 255.
+    Per questo motivo è importante che la variabile self.max_PWM sia inizializzata con un valore compreso tra 0 e 255.
 
     **Nota**: La velocità che viene ridotta o aumentata dalla forza applicata non è fissa e dipende dall'angolo 
     dell'asta. Il centro di gravità del pendolo varia l'energia necessaria per spostare il carrello.
@@ -104,6 +104,8 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.Ra_nominal = 180/83  # Resistenza nominale
         self.K_nominal = 18/(83*math.pi)  # Costante elettromeccanica nominale
         self.r_nominal = 0.0145  # Raggio nominale
+        self.friction_coefficient_nominal = 0.0000765  # Coefficiente di attrito
+        self.damping_coefficient_nominal = 0.001968  # Coefficiente di smorzamento
 
         self.uncertainty = 0.05 # Margine di errore per i valori nominali
         self.noise = 0.05  # Rumore
@@ -115,6 +117,8 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.Ra = self.apply_error(self.Ra_nominal, self.uncertainty)
         self.K = self.apply_error(self.K_nominal, self.uncertainty)
         self.r = self.apply_error(self.r_nominal, self.uncertainty)
+        self.friction_coefficient = self.apply_error(self.friction_coefficient_nominal, self.uncertainty)
+        self.damping_coefficient = self.apply_error(self.damping_coefficient_nominal, self.uncertainty)
 
         self.max_voltage = self.apply_error(self.max_nominal_voltage, self.noise)
 
@@ -122,7 +126,9 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.polemass_length = self.masspole * self.length  # Prodotto tra la massa del pendolo e la sua lunghezza
 
         self.old_action = 0.0  # Tensione precedente applicata
-        self.min_PWM = 50.0 # Minimo valore di PWM
+        # self.min_PWM = 60 # NON stabilizzato
+        # self.min_PWM = 70.0 # NON Stabilizzato
+        self.min_PWM = 80.0 # Minimo valore di PWM
         self.max_PWM = 110.0  # Massimo valore di PWM
         self.PWM_resolution = 255.0  # Risoluzione del segnale PWM
 
@@ -151,7 +157,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         )
 
         # Spazio delle azioni e delle osservazioni
-        self.action_space = spaces.Discrete(2*int(self.PWM_resolution) + 1)
+        self.action_space = spaces.Discrete(2*int(self.max_PWM - self.min_PWM) + 1)
         self.observation_space = spaces.Box(-high, high, dtype=np.float32)
 
         self.render_mode = render_mode
@@ -238,47 +244,63 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
     """ Questa funzione riceve in ingresso la forza da applicare al carrello,e attraverso l'equazione del moto
     calcola l'accelerazione lineare del carrello e l'accelerazione angolare del pendolo.
-    L'integrazione di Eulero viene utilizzata per incrementare le posizioni e le velocità """
+    L'integrazione di Runge-Kutta del 4° ordine viene utilizzata per incrementare le posizioni e le velocità """
     def apply_force(self, force):
 
-        x, x_dot, theta, theta_dot = self.state
-        
-        sintheta = np.sin(theta)
-        costheta = np.cos(theta)
+        # Funzione ausiliaria per calcolare la derivata del vettore di stato
+        def derivatives(state, force):
+            x, x_dot, theta, theta_dot = state
+            costheta = np.cos(theta)
+            sintheta = np.sin(theta)
 
+            # Forze di attrito e smorzamento
+            friction_force = self.friction_coefficient * x_dot
+            damping_force = self.damping_coefficient * theta_dot
 
-        # Calcolo delle accelerazioni angolari e lineari
-        temp = (
-            force + self.polemass_length * np.square(theta_dot) * sintheta
-        ) / self.total_mass
-        
-        theta_acc = (self.gravity * sintheta - costheta * temp) / (
-            self.length
-            * (4.0 / 3.0 - self.masspole * np.square(costheta) / self.total_mass)
-        )
-        
-        x_acc = temp - self.polemass_length * theta_acc * costheta / self.total_mass 
-        
-         # Aggiorna le velocità e le posizioni usando l'integrazione di Eulero
-        theta_dot = theta_dot + theta_acc * self.tau
-        theta = theta + theta_dot * self.tau
+            # Equazioni del moto
+            temp = (force - friction_force + self.polemass_length * theta_dot ** 2 * sintheta) / self.total_mass
+            theta_acc = (self.gravity * sintheta - costheta * temp - damping_force / self.length) / \
+                        (self.length * (4.0 / 3.0 - self.masspole * costheta ** 2 / self.total_mass))
+            x_acc = temp - self.polemass_length * theta_acc * costheta / self.total_mass
 
-        x_dot = x_dot + x_acc * self.tau
-        x = x + x_dot * self.tau
+            return np.array([x_dot, x_acc, theta_dot, theta_acc])
+        state = np.array(self.state) # Vettore di Stato
+        tau = self.tau
 
-        return x, x_dot, theta, theta_dot
+        k1 = tau*derivatives(state, force)
+        k2 = tau*derivatives(state + k1/2.0, force)
+        k3 = tau*derivatives(state + k2/2.0, force)
+        k4 = tau*derivatives(state + k3, force)
 
+        new_state = state + (1.0 / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4)
+
+        self.state = tuple(new_state)
+        return self.state
+    
     """ Mappa l'azione in un valore di PWM compreso (in valore assoluto) nell'intervallo [self.min_PWM; self.max_PWM] """
     def action_to_PWM(self, action):
-        PWM_value = (action - self.PWM_resolution)
 
+        normalized_action = action - (self.max_PWM - self.min_PWM) # Normalizzazione dell'azione
+
+        PWM_value = normalized_action
+
+        if(normalized_action < 0):
+            PWM_value = normalized_action - self.min_PWM
+        elif (normalized_action > 0):
+            PWM_value = normalized_action + self.min_PWM
+
+        """ PWM_value = (action - self.PWM_resolution) # PWM_value in [-255; 255]
+
+        # abs_value = |PWM_value| := Intensità, sign = segno di PWM_value := Direzione
         abs_value = abs(PWM_value)
         sign = np.sign(PWM_value)
 
+        # Dopo che l'azione è stata mappata sul valore PWM, si controlla se rientra nei limiti
+        # Dopo ciò, il valore PWM viene mappato nell'intervallo [-self.max_PWM; -self.min_PWM] U [+self.min_PWM; +self.max_PWM]        
         if( abs_value >= self.max_PWM):
             PWM_value = sign*self.max_PWM
         elif(abs_value <= self.min_PWM):
-            PWM_value = sign*self.min_PWM
+            PWM_value = sign*self.min_PWM """
         
         return PWM_value
     
@@ -311,6 +333,9 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.Ra = self.apply_error(self.Ra_nominal, self.uncertainty)
         self.K = self.apply_error(self.K_nominal, self.uncertainty)
         self.r = self.apply_error(self.r_nominal, self.uncertainty)
+        self.friction_coefficient = self.apply_error(self.friction_coefficient_nominal, self.uncertainty)
+        self.damping_coefficient = self.apply_error(self.damping_coefficient_nominal, self.uncertainty)
+
 
         ### Ricalcola i valori tenendo conto dell'incertezza
         self.total_mass = self.masspole + self.masscart  # Massa totale del sistema
@@ -450,5 +475,3 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             pygame.display.quit()
             pygame.quit()
             self.isopen = False
-
-

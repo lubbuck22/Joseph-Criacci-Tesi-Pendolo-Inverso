@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import filedialog, ttk, messagebox
 import serial.tools.list_ports
+import os
+import re
 
 """ Classe per la gestione dei file e delle porte seriali """
 class Manager():
@@ -97,3 +99,25 @@ class Manager():
         self.root.mainloop()
         return self.port_name  # Restituisce la porta selezionata
 
+    def extract_low_high(self, filename):
+        """
+        Estrae i valori di a e b da una stringa del tipo "DQN_CartPole_a_b.zip".
+        
+        Args:
+        filename (str): La stringa da cui estrarre i valori.
+        
+        Returns:
+        tuple: Una tupla contenente i valori di a e b come interi.
+        """
+        # Estrai il nome del file dal percorso completo
+        base_filename = os.path.basename(filename)
+        
+        # Pattern regex per estrarre i valori di a e b
+        pattern = r"DQN_CartPole_(\d+)_(\d+)\.zip"
+        match = re.match(pattern, base_filename)
+        if match:
+            low = int(match.group(1))
+            high = int(match.group(2))
+            return low, high
+        else:
+            raise ValueError("La stringa non corrisponde al formato atteso.")

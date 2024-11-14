@@ -18,26 +18,29 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     ["Neuronlike Adaptive Elements That Can Solve Difficult Learning Control Problem"].
     (https://ieeexplore.ieee.org/document/6313077)
     
-    Un'asta (il pendolo) è collegata tramite un giunto non attuato a un carrello che si muove su una pista senza attrito.
+    Un'asta (il pendolo) è collegata tramite un giunto non attuato a un carrello che si muove su una pista.
     Il pendolo è inizialmente posizionato verticalmente sul carrello, e l'obiettivo è bilanciare l'asta applicando forze 
     a sinistra o a destra sul carrello.
 
     ## Spazio delle azioni
 
-    L'azione è un array con forma `(1,)` che può assumere valori `{0, 1, ..., 2* self.max_PWM - 1`. Indica il valore PWM
+    L'azione è un array con forma `(1,)` che può assumere valori `{0, 1, ..., 6`}. Indica l'intensità di valore PWM
     della tensione applicata al motore DC.
     
             Azione                 |                Effetto                      |
     _______________________________|_____________________________________________|
-    -           0:                 | Valore max_PWM PWM1a sinistra               |
-    -           1:                 | ( max_PWM - 11) PWM a sinistra              |
-    .                              |                                             |
-    .                              |                                             |
-    - ( 2 * self.max_PWM ) -1:     | ( max_PWM - 11) PWM a destra                |
-    - ( 2 * self.max_PWM ): 1      | Valore max_PWM PWM1a destra                 |
+    -           0:                 |        Valore self.high_PWM a sinistra      |
+    -           1:                 |        Valore self.mid_PWM a sinistra       |
+    -           2:                 |        Valore self.low_PWM a sinistra       |
+    -           3:                 |                Stai fermo                   |
+    -           4:                 |        Valore self.low_PWM a destra         |
+    -           5:                 |        Valore self.mid_PWM a destra         |
+    -           6:                 |        Valore self.high_PWM a destra        |
     _______________________________|_____________________________________________|
 
-    Per questo motivo è importante che la variabile self.max_PWM sia inizializzata con un valore compreso tra 0 e 255.
+    Per questo motivo è importante che le variabili self.low_PWM e self.high_PWM siano inizializzate con un valore compreso tra 0 e 255.
+    **Nota**: L'azione 3 non ha effetto sul sistema, ma è stata aggiunta per completezza.
+    **Nota**: self.mid_PWM viene calcolato come la media tra self.low_PWM e self.high_PWM.
 
     **Nota**: La velocità che viene ridotta o aumentata dalla forza applicata non è fissa e dipende dall'angolo 
     dell'asta. Il centro di gravità del pendolo varia l'energia necessaria per spostare il carrello.
@@ -126,12 +129,20 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.polemass_length = self.masspole * self.length  # Prodotto tra la massa del pendolo e la sua lunghezza
 
         self.old_action = 0.0  # Tensione precedente applicata
-        # self.min_PWM = 60 # NON stabilizzato
-        # self.min_PWM = 70.0 # NON Stabilizzato
-        self.min_PWM = 80.0 # Minimo valore di PWM
-        self.max_PWM = 110.0  # Massimo valore di PWM
+        
+        self.low_PWM = 50.0
+        self.high_PWM = 150.0
+        self.mid_PWM = (self.low_PWM + self.high_PWM) / 2.0
+
         self.PWM_resolution = 255.0  # Risoluzione del segnale PWM
 
+        self.PWM_default_values = [-self.high_PWM, 
+                                   -self.mid_PWM, 
+                                   -self.low_PWM, 
+                                   0 , 
+                                   self.low_PWM, 
+                                   self.mid_PWM, 
+                                   self.high_PWM]
         """ L'Arduino esegue il loop ogni self.tau = 0.005 secondi, ma comunica con Python ogni self.period = 0.05 secondi.
         Tra due comunicazioni, Arduino continua ad applicare l'ultimo segnale di controllo generato. """
         self.period = 0.05  # Periodo di comunicazione con Arduino (in secondi)
@@ -157,7 +168,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         )
 
         # Spazio delle azioni e delle osservazioni
-        self.action_space = spaces.Discrete(2*int(self.max_PWM - self.min_PWM) + 1)
+        self.action_space = spaces.Discrete(7)
         self.observation_space = spaces.Box(-high, high, dtype=np.float32)
 
         self.render_mode = render_mode
@@ -172,6 +183,28 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
         self.steps_beyond_terminated = None
 
+    def set_high_PWM(self, high_PWM: float):
+        self.high_PWM = high_PWM
+        self.mid_PWM = (self.low_PWM + self.high_PWM) / 2.0
+        self.PWM_default_values = [-self.high_PWM, 
+                                   -self.mid_PWM, 
+                                   -self.low_PWM, 
+                                   0 , 
+                                   self.low_PWM, 
+                                   self.mid_PWM, 
+                                   self.high_PWM]
+
+    
+    def set_low_PWM(self, low_PWM: float):
+        self.low_PWM = low_PWM
+        self.mid_PWM = (self.low_PWM + self.high_PWM) / 2.0
+        self.PWM_default_values = [-self.high_PWM, 
+                                   -self.mid_PWM, 
+                                   -self.low_PWM, 
+                                   0 , 
+                                   self.low_PWM, 
+                                   self.mid_PWM, 
+                                   self.high_PWM]
 
     # Metodo che aggiorna il sistema
     def step(self, action):
@@ -277,32 +310,10 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.state = tuple(new_state)
         return self.state
     
-    """ Mappa l'azione in un valore di PWM compreso (in valore assoluto) nell'intervallo [self.min_PWM; self.max_PWM] """
+    """ Mappa l'azione in un valore di PWM compreso (in valore assoluto) nell'intervallo [-self.high_PWM; self.high_PWM] """
     def action_to_PWM(self, action):
 
-        normalized_action = action - (self.max_PWM - self.min_PWM) # Normalizzazione dell'azione
-
-        PWM_value = normalized_action
-
-        if(normalized_action < 0):
-            PWM_value = normalized_action - self.min_PWM
-        elif (normalized_action > 0):
-            PWM_value = normalized_action + self.min_PWM
-
-        """ PWM_value = (action - self.PWM_resolution) # PWM_value in [-255; 255]
-
-        # abs_value = |PWM_value| := Intensità, sign = segno di PWM_value := Direzione
-        abs_value = abs(PWM_value)
-        sign = np.sign(PWM_value)
-
-        # Dopo che l'azione è stata mappata sul valore PWM, si controlla se rientra nei limiti
-        # Dopo ciò, il valore PWM viene mappato nell'intervallo [-self.max_PWM; -self.min_PWM] U [+self.min_PWM; +self.max_PWM]        
-        if( abs_value >= self.max_PWM):
-            PWM_value = sign*self.max_PWM
-        elif(abs_value <= self.min_PWM):
-            PWM_value = sign*self.min_PWM """
-        
-        return PWM_value
+        return self.PWM_default_values[int(action)]
     
     def action_to_force(self, action):
 

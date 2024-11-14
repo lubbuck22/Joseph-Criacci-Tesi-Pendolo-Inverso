@@ -23,16 +23,18 @@ La repository contiene i seguenti componenti principali:
         - Simula un sistema di pendolo su carrello con parametri come gravità, massa e caratteristiche del motore.
         - Lo spazio delle azioni definisce il segnale PWM (Pulse Width Modulation) che controlla la forza applicata al carrello.
         - Lo spazio delle osservazioni include la posizione e la velocità del carrello, l'angolo del pendolo e la velocità angolare.
-        - Include la fisica per il calcolo delle forze sul sistema e integra questi dati nel tempo utilizzando l'integrazione di Eulero.
+        - Include la fisica per il calcolo delle forze sul sistema e integra questi dati nel tempo utilizzando l'integrazione di Runge-Kutta del 4° Ordine.
         - L'ambiente può essere visualizzato (rendering) e supporta condizioni di terminazione basate sulla posizione del carrello o sull'angolo del pendolo.
 
     2. **`PendulumGym.py`**  
     Questo file integra l'ambiente `CartPoleEnv` con l'algoritmo di apprendimento per rinforzo, in particolare il Deep Q-Network (DQN) dalla libreria `stable_baselines3`.
     - **Caratteristiche principali**:
         - Carica l'ambiente personalizzato `CartPoleEnv`.
-        - Un modello DQN pre-addestrato (`dqn_DC_Motor_cartpole`) è già incluso e viene caricato per controllare il sistema.
+        - Vari modelli DQN pre-addestrati sono già inclusi nella cartella `Modelli Prposti`
+        - Viene caricato un modello e l'ambiente viene adattato ai valori del modello.
         - Il modello DQN interagisce con l'ambiente prevedendo azioni da applicare in tempo reale con l'obiettivo di mantenere il pendolo in equilibrio.
-        - Per un controllo avanzato, il modello DQN può essere riaddestrato utilizzando diverse politiche o parametri.
+        - Per un controllo avanzato, il modello DQN può essere riaddestrato utilizzando diverse politiche o parametri 
+        - N.B.: Nella versione corrente il nome associato al modello deve avere una struttura del tipo `DQN_Cartpole_{**low**}_{**high**}`, dove i valori interi `low` e `high` verrano impostati come valori `self.low_PWM` e `self.high_PWM` dell'ambiente. (Per più informazioni aprire `Pendolo_Inverso_DC_Motor.py`)
 
 
     3. **`Serial_Communication.py`**  

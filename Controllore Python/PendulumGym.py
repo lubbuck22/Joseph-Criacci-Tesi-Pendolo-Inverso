@@ -8,7 +8,6 @@ LEARNING_STEP = 1000000
 manager = Manager()
 env = CartPoleEnv(render_mode='human')
 
-
 """ model = DQN("MlpPolicy", env, verbose=1)
 model.learn(total_timesteps=LEARNING_STEP, log_interval=5)
 print("Allenamento completato, salvataggio del modello... (N.B.: la finestra di dialogo potrebbe essere nascosta)")
@@ -19,8 +18,7 @@ del model # remove to demonstrate saving and loading """
 print("Scegliere un modello da testare (N.B.: la finestra di dialogo potrebbe essere nascosta)")
 model_file = manager.choose_file()
 low, high = manager.extract_low_high(model_file)
-env.set_low_PWM(low)
-env.set_high_PWM(high)
+env.set_PWM_values(low_PWM=low, high_PWM=high)
 model = DQN.load(model_file, env)
 obs, info = env.reset()
 while True:

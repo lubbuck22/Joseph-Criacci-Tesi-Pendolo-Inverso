@@ -67,9 +67,6 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     La soglia di ricompensa predefinita è 500.
     Inoltre, la ricompensa è proporzionale alla posizione del carrello, con maggiori ricompense se il carrello è vicino al centro.
 
-    Se `sutton_barto_reward=True`, viene assegnata una ricompensa di `0` per ogni passo non terminato e `-1` per il passo terminante.
-    La soglia di ricompensa è 0 per v0 e v1.
-
     ## Stato iniziale
     Le osservazioni sono assegnate a valori casuali uniformi in `(-0.05, 0.05)`.
 
@@ -93,10 +90,8 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     }
 
     def __init__(
-        self, sutton_barto_reward: bool = False, render_mode: Optional[str] = None
+        self, render_mode: Optional[str] = None
     ):
-        self._sutton_barto_reward = sutton_barto_reward
-
         self.gravity = 9.81  # Gravità terrestre
     
         #### Valori nominali 
@@ -183,20 +178,9 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
         self.steps_beyond_terminated = None
 
-    def set_high_PWM(self, high_PWM: float):
-        self.high_PWM = high_PWM
-        self.mid_PWM = (self.low_PWM + self.high_PWM) / 2.0
-        self.PWM_default_values = [-self.high_PWM, 
-                                   -self.mid_PWM, 
-                                   -self.low_PWM, 
-                                   0 , 
-                                   self.low_PWM, 
-                                   self.mid_PWM, 
-                                   self.high_PWM]
-
-    
-    def set_low_PWM(self, low_PWM: float):
+    def set_PWM_values(self,low_PWM: float, high_PWM: float):
         self.low_PWM = low_PWM
+        self.high_PWM = high_PWM
         self.mid_PWM = (self.low_PWM + self.high_PWM) / 2.0
         self.PWM_default_values = [-self.high_PWM, 
                                    -self.mid_PWM, 
@@ -247,16 +231,13 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
         # Ricompensa in base allo stato del sistema
         if not terminated:
-            if self._sutton_barto_reward:
-                reward = 0.0
-            else:
-                reward = (self.x_threshold-abs(x))/self.x_threshold
+            reward = (self.x_threshold-abs(x))/self.x_threshold
 
         elif self.steps_beyond_terminated is None:
             # Il pendolo è appena caduto
             self.steps_beyond_terminated = 0
 
-            reward = -1.0 if self._sutton_barto_reward else 1.0
+            reward = 1.0
         else:
             if self.steps_beyond_terminated == 0:
                 logger.warn(
@@ -265,7 +246,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
                 )
             self.steps_beyond_terminated += 1
 
-            reward = -1.0 if self._sutton_barto_reward else 0.0
+            reward = 0.0
 
         # Renderizza il sistema se richiesto
         if self.render_mode == "human":

@@ -125,8 +125,8 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
         self.old_action = 0.0  # Tensione precedente applicata
         
-        self.low_PWM = 50.0
-        self.high_PWM = 150.0
+        self.low_PWM = 80.0
+        self.high_PWM = 120.0
         self.mid_PWM = (self.low_PWM + self.high_PWM) / 2.0
 
         self.PWM_resolution = 255.0  # Risoluzione del segnale PWM
@@ -148,7 +148,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.torque_pwm_constant = 5.8824  # Costante per convertire in coppia il valore PWM
 
         # Angolo oltre il quale l'episodio fallisce
-        self.theta_threshold_radians = 12 * 2 * math.pi / 360  # ±12° in radianti
+        self.theta_threshold_radians = 24 * (2*math.pi) / 360  # ±24° in radianti
         self.x_threshold = 0.4  # Posizione limite del carrello
 
         # Imposta il limite dell'angolo a 2 * theta_threshold_radians per garantire che l'osservazione rimanga valida        
@@ -344,9 +344,12 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         super().reset(seed=seed)
         # Note that if you use custom reset bounds, it may lead to out-of-bound
         # state/observations.
-        low, high = utils.maybe_parse_reset_bounds(
+        """ low, high = utils.maybe_parse_reset_bounds(
             options, -0.05, 0.05  # default low
-        )  # default high
+        )  # default high """
+        low, high = utils.maybe_parse_reset_bounds(
+            options, -0.15, 0.15  # default low
+        ) # default high
         self.state = self.np_random.uniform(low=low, high=high, size=(4,))
         self.steps_beyond_terminated = None
 

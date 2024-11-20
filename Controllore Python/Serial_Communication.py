@@ -94,8 +94,8 @@ def main():
     model_file = manager.choose_file()
 
     # Adatta l'ambiente ai valori di low_PWM e high_PWM del modello
-    low, high = manager.extract_low_high(model_file)
-    env.set_PWM_values(low_PWM=low, high_PWM=high)
+    #low, high = manager.extract_low_high(model_file)
+    #env.set_PWM_values(low_PWM=low, high_PWM=high)
     model = DQN.load(model_file, env)
 
     print("Scegli la porta seriale da utilizzare (N.B.: la finestra di dialogo potrebbe essere nascosta)")

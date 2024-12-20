@@ -9,7 +9,7 @@
  *
  * Model version                  : 1.24
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Tue Nov 19 16:24:01 2024
+ * C/C++ source code generated on : Fri Dec 20 08:45:02 2024
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: Atmel->AVR
@@ -25,11 +25,6 @@ P_Pendolo_Inverso_T Pendolo_Inverso_P = {
    * Referenced by: '<S7>/Analog Input3'
    */
   0.005,
-
-  /* Mask Parameter: DiscreteDerivative2_ICPrevScale
-   * Referenced by: '<S13>/UD'
-   */
-  0.0,
 
   /* Mask Parameter: DiscreteDerivative_ICPrevScaled
    * Referenced by: '<S9>/UD'
@@ -86,26 +81,6 @@ P_Pendolo_Inverso_T Pendolo_Inverso_P = {
    */
   0.017453292519943295,
 
-  /* Computed Parameter: TSamp_WtEt
-   * Referenced by: '<S13>/TSamp'
-   */
-  200.0,
-
-  /* Computed Parameter: DiscreteZeroPole6_A
-   * Referenced by: '<S7>/Discrete Zero-Pole6'
-   */
-  0.90483741803595952,
-
-  /* Computed Parameter: DiscreteZeroPole6_C
-   * Referenced by: '<S7>/Discrete Zero-Pole6'
-   */
-  0.09048374180359596,
-
-  /* Computed Parameter: DiscreteZeroPole6_D
-   * Referenced by: '<S7>/Discrete Zero-Pole6'
-   */
-  0.05,
-
   /* Expression: inf
    * Referenced by: '<S1>/Constant'
    */
@@ -126,22 +101,22 @@ P_Pendolo_Inverso_T Pendolo_Inverso_P = {
    */
   -0.33,
 
-  /* Computed Parameter: TSamp_WtEt_p
+  /* Computed Parameter: TSamp_WtEt
    * Referenced by: '<S9>/TSamp'
    */
   200.0,
 
-  /* Computed Parameter: DiscreteZeroPole6_A_k
+  /* Computed Parameter: DiscreteZeroPole6_A
    * Referenced by: '<S4>/Discrete Zero-Pole6'
    */
   0.90483741803595952,
 
-  /* Computed Parameter: DiscreteZeroPole6_C_p
+  /* Computed Parameter: DiscreteZeroPole6_C
    * Referenced by: '<S4>/Discrete Zero-Pole6'
    */
   0.09048374180359596,
 
-  /* Computed Parameter: DiscreteZeroPole6_D_l
+  /* Computed Parameter: DiscreteZeroPole6_D
    * Referenced by: '<S4>/Discrete Zero-Pole6'
    */
   0.05,

@@ -148,7 +148,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.torque_pwm_constant = 5.8824  # Costante per convertire in coppia il valore PWM
 
         # Angolo oltre il quale l'episodio fallisce
-        self.theta_threshold_radians = 24 * (2*math.pi) / 360  # ±24° in radianti
+        self.theta_threshold_radians = 12 * (2*math.pi) / 360  # ±24° in radianti
         self.x_threshold = 0.4  # Posizione limite del carrello
 
         # Imposta il limite dell'angolo a 2 * theta_threshold_radians per garantire che l'osservazione rimanga valida        

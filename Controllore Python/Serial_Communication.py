@@ -53,7 +53,6 @@ def synchronize_with_arduino(ser):
 def on_key_event(event):
     global message_to_send
     button = event.name  # Nome del tasto premuto
-
     # Aggiorna i valori in base ai tasti premuti e imposta il messaggio da inviare
     if(button == '1'):
         message_to_send = ENABLE
@@ -94,8 +93,8 @@ def main():
     model_file = manager.choose_file()
 
     # Adatta l'ambiente ai valori di low_PWM e high_PWM del modello
-    #low, high = manager.extract_low_high(model_file)
-    #env.set_PWM_values(low_PWM=low, high_PWM=high)
+    low, high = manager.extract_low_high(model_file)
+    env.set_PWM_values(low_PWM=low, high_PWM=high)
     model = DQN.load(model_file, env)
 
     print("Scegli la porta seriale da utilizzare (N.B.: la finestra di dialogo potrebbe essere nascosta)")

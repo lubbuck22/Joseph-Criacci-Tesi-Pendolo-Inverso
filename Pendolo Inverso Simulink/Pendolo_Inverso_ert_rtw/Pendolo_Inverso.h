@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Pendolo_Inverso'.
  *
- * Model version                  : 1.24
+ * Model version                  : 1.25
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Fri Dec 20 08:45:02 2024
+ * C/C++ source code generated on : Wed Jan  8 14:38:05 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: Atmel->AVR
@@ -66,6 +66,7 @@
 /* Block signals (default storage) */
 typedef struct {
   real_T FromWorkspace[3];             /* '<S14>/From Workspace' */
+  real_T rtb_SerialReceive2_o1_m[2];
   real_T DataTypeConversion3;          /* '<S7>/Data Type Conversion3' */
   real_T Subtract1;                    /* '<S14>/Subtract1' */
   real_T rodangle;                     /* '<S7>/Discrete Zero-Pole1' */
@@ -76,6 +77,7 @@ typedef struct {
   real_T enable;                       /* '<Root>/check_input' */
   real_T torqueOut;                    /* '<S1>/Selection' */
   real_T cartPos;                      /* '<S1>/Homing Block' */
+  real_T torqueOut_c;                  /* '<S1>/Move to Center' */
   int16_T SFunctionBuilder2;           /* '<S1>/S-Function Builder2' */
 } B_Pendolo_Inverso_T;
 
@@ -89,8 +91,10 @@ typedef struct {
   codertarget_arduinobase_inter_T obj_f;/* '<S1>/PWM3' */
   real_T SFunctionBuilder2_DSTATE;     /* '<S1>/S-Function Builder2' */
   real_T DiscreteZeroPole1_DSTATE;     /* '<S7>/Discrete Zero-Pole1' */
-  real_T UD_DSTATE;                    /* '<S9>/UD' */
-  real_T DiscreteZeroPole6_DSTATE;     /* '<S4>/Discrete Zero-Pole6' */
+  real_T UD_DSTATE;                    /* '<S13>/UD' */
+  real_T DiscreteZeroPole6_DSTATE;     /* '<S7>/Discrete Zero-Pole6' */
+  real_T UD_DSTATE_n;                  /* '<S9>/UD' */
+  real_T DiscreteZeroPole6_DSTATE_g;   /* '<S4>/Discrete Zero-Pole6' */
   real_T RateTransition1_Buffer[5];    /* '<Root>/Rate Transition1' */
   real_T torque_value;                 /* '<Root>/check_torque' */
   real_T mode_value;                   /* '<Root>/check_input' */
@@ -125,6 +129,10 @@ struct P_Pendolo_Inverso_T_ {
   real_T Tc;                           /* Variable: Tc
                                         * Referenced by: '<S7>/Analog Input3'
                                         */
+  real_T DiscreteDerivative2_ICPrevScale;
+                              /* Mask Parameter: DiscreteDerivative2_ICPrevScale
+                               * Referenced by: '<S13>/UD'
+                               */
   real_T DiscreteDerivative_ICPrevScaled;
                               /* Mask Parameter: DiscreteDerivative_ICPrevScaled
                                * Referenced by: '<S9>/UD'
@@ -159,6 +167,18 @@ struct P_Pendolo_Inverso_T_ {
   real_T Gain1_Gain;                   /* Expression: pi/180
                                         * Referenced by: '<S12>/Gain1'
                                         */
+  real_T TSamp_WtEt;                   /* Computed Parameter: TSamp_WtEt
+                                        * Referenced by: '<S13>/TSamp'
+                                        */
+  real_T DiscreteZeroPole6_A;         /* Computed Parameter: DiscreteZeroPole6_A
+                                       * Referenced by: '<S7>/Discrete Zero-Pole6'
+                                       */
+  real_T DiscreteZeroPole6_C;         /* Computed Parameter: DiscreteZeroPole6_C
+                                       * Referenced by: '<S7>/Discrete Zero-Pole6'
+                                       */
+  real_T DiscreteZeroPole6_D;         /* Computed Parameter: DiscreteZeroPole6_D
+                                       * Referenced by: '<S7>/Discrete Zero-Pole6'
+                                       */
   real_T Constant_Value_o;             /* Expression: inf
                                         * Referenced by: '<S1>/Constant'
                                         */
@@ -171,18 +191,18 @@ struct P_Pendolo_Inverso_T_ {
   real_T Constant3_Value;              /* Expression: -0.33
                                         * Referenced by: '<S10>/Constant3'
                                         */
-  real_T TSamp_WtEt;                   /* Computed Parameter: TSamp_WtEt
+  real_T TSamp_WtEt_p;                 /* Computed Parameter: TSamp_WtEt_p
                                         * Referenced by: '<S9>/TSamp'
                                         */
-  real_T DiscreteZeroPole6_A;         /* Computed Parameter: DiscreteZeroPole6_A
-                                       * Referenced by: '<S4>/Discrete Zero-Pole6'
-                                       */
-  real_T DiscreteZeroPole6_C;         /* Computed Parameter: DiscreteZeroPole6_C
-                                       * Referenced by: '<S4>/Discrete Zero-Pole6'
-                                       */
-  real_T DiscreteZeroPole6_D;         /* Computed Parameter: DiscreteZeroPole6_D
-                                       * Referenced by: '<S4>/Discrete Zero-Pole6'
-                                       */
+  real_T DiscreteZeroPole6_A_k;     /* Computed Parameter: DiscreteZeroPole6_A_k
+                                     * Referenced by: '<S4>/Discrete Zero-Pole6'
+                                     */
+  real_T DiscreteZeroPole6_C_p;     /* Computed Parameter: DiscreteZeroPole6_C_p
+                                     * Referenced by: '<S4>/Discrete Zero-Pole6'
+                                     */
+  real_T DiscreteZeroPole6_D_l;     /* Computed Parameter: DiscreteZeroPole6_D_l
+                                     * Referenced by: '<S4>/Discrete Zero-Pole6'
+                                     */
   uint8_T SFunctionBuilder2_P1;        /* Expression: uint8(0)
                                         * Referenced by: '<S1>/S-Function Builder2'
                                         */
@@ -255,11 +275,7 @@ extern volatile boolean_T runModel;
  * Block '<S14>/Display3' : Unused code path elimination
  * Block '<S14>/Display4' : Unused code path elimination
  * Block '<S11>/Display' : Unused code path elimination
- * Block '<S7>/Discrete Zero-Pole6' : Unused code path elimination
  * Block '<S13>/Data Type Duplicate' : Unused code path elimination
- * Block '<S13>/Diff' : Unused code path elimination
- * Block '<S13>/TSamp' : Unused code path elimination
- * Block '<S13>/UD' : Unused code path elimination
  * Block '<S1>/Data Type Conversion1' : Eliminate redundant data type conversion
  */
 

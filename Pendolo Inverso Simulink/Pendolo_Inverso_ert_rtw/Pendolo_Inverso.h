@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Pendolo_Inverso'.
  *
- * Model version                  : 1.25
+ * Model version                  : 1.30
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Wed Jan  8 14:38:05 2025
+ * C/C++ source code generated on : Mon Jan 13 09:52:51 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: Atmel->AVR
@@ -73,12 +73,11 @@ typedef struct {
   real_T EnableOut;                    /* '<S1>/S-Function Builder' */
   real_T Dir;                          /* '<S1>/S-Function Builder' */
   real_T PWMOut;                       /* '<S1>/S-Function Builder' */
-  real_T mode;                         /* '<Root>/check_input' */
   real_T enable;                       /* '<Root>/check_input' */
   real_T torqueOut;                    /* '<S1>/Selection' */
-  real_T cartPos;                      /* '<S1>/Homing Block' */
-  real_T torqueOut_c;                  /* '<S1>/Move to Center' */
-  int16_T SFunctionBuilder2;           /* '<S1>/S-Function Builder2' */
+  real_T Gain1;                        /* '<S12>/Gain1' */
+  real_T Product;                      /* '<S9>/Product' */
+  int16_T SFunctionBuilder3;           /* '<S1>/S-Function Builder3' */
 } B_Pendolo_Inverso_T;
 
 /* Block states (default storage) for system '<Root>' */
@@ -89,12 +88,12 @@ typedef struct {
   codertarget_arduinobase_block_T obj_e1;/* '<S1>/Digital Output20' */
   codertarget_arduinobase_block_T obj_e5;/* '<S1>/Digital Output19' */
   codertarget_arduinobase_inter_T obj_f;/* '<S1>/PWM3' */
-  real_T SFunctionBuilder2_DSTATE;     /* '<S1>/S-Function Builder2' */
+  real_T SFunctionBuilder3_DSTATE;     /* '<S1>/S-Function Builder3' */
   real_T DiscreteZeroPole1_DSTATE;     /* '<S7>/Discrete Zero-Pole1' */
   real_T UD_DSTATE;                    /* '<S13>/UD' */
   real_T DiscreteZeroPole6_DSTATE;     /* '<S7>/Discrete Zero-Pole6' */
-  real_T UD_DSTATE_n;                  /* '<S9>/UD' */
-  real_T DiscreteZeroPole6_DSTATE_g;   /* '<S4>/Discrete Zero-Pole6' */
+  real_T UD_DSTATE_n;                  /* '<S10>/UD' */
+  real_T DiscreteZeroPole6_DSTATE_h;   /* '<S4>/Discrete Zero-Pole6' */
   real_T RateTransition1_Buffer[5];    /* '<Root>/Rate Transition1' */
   real_T torque_value;                 /* '<Root>/check_torque' */
   real_T mode_value;                   /* '<Root>/check_input' */
@@ -105,14 +104,14 @@ typedef struct {
   real_T torqueval;                    /* '<S1>/Selection' */
   real_T kp;                           /* '<S1>/Move to Center' */
   real_T set_pos;                      /* '<S1>/Move to Center' */
-  real_T torqueval_i;                  /* '<S1>/Homing Block' */
-  real_T state;                        /* '<S1>/Homing Block' */
-  real_T homeval;                      /* '<S1>/Homing Block' */
-  real_T counter;                      /* '<S1>/Homing Block' */
-  real_T i;                            /* '<S1>/Homing Block' */
-  real_T precart;                      /* '<S1>/Homing Block' */
-  real_T prepos;                       /* '<S1>/Homing Block' */
-  real_T precartArray[10];             /* '<S1>/Homing Block' */
+  real_T torqueval_l;                  /* '<S1>/Homing Block3' */
+  real_T state;                        /* '<S1>/Homing Block3' */
+  real_T homeval;                      /* '<S1>/Homing Block3' */
+  real_T counter;                      /* '<S1>/Homing Block3' */
+  real_T i;                            /* '<S1>/Homing Block3' */
+  real_T precart;                      /* '<S1>/Homing Block3' */
+  real_T prepos;                       /* '<S1>/Homing Block3' */
+  real_T precartArray[10];             /* '<S1>/Homing Block3' */
   struct {
     void *TimePtr;
     void *DataPtr;
@@ -135,7 +134,7 @@ struct P_Pendolo_Inverso_T_ {
                                */
   real_T DiscreteDerivative_ICPrevScaled;
                               /* Mask Parameter: DiscreteDerivative_ICPrevScaled
-                               * Referenced by: '<S9>/UD'
+                               * Referenced by: '<S10>/UD'
                                */
   real_T SerialReceive2_Protocol;      /* Expression: 0
                                         * Referenced by: '<Root>/Serial Receive2'
@@ -149,7 +148,13 @@ struct P_Pendolo_Inverso_T_ {
   real_T Constant1_Value;              /* Expression: 511.5
                                         * Referenced by: '<S14>/Constant1'
                                         */
-  real_T Constant_Value;               /* Expression: 360
+  real_T Constant_Value;               /* Expression: 2658
+                                        * Referenced by: '<S9>/Constant'
+                                        */
+  real_T Constant1_Value_c;            /* Expression: 656
+                                        * Referenced by: '<S9>/Constant1'
+                                        */
+  real_T Constant_Value_c;             /* Expression: 360
                                         * Referenced by: '<S14>/Constant'
                                         */
   real_T RodOffset_Value;              /* Expression: -0.75
@@ -182,35 +187,29 @@ struct P_Pendolo_Inverso_T_ {
   real_T Constant_Value_o;             /* Expression: inf
                                         * Referenced by: '<S1>/Constant'
                                         */
-  real_T Constant_Value_j;             /* Expression: -1380
-                                        * Referenced by: '<S10>/Constant'
+  real_T toMeters_Gain;                /* Expression: 1/1000
+                                        * Referenced by: '<S4>/toMeters'
                                         */
-  real_T Gain_Gain;                    /* Expression: (0.66)/(1249+1380)
-                                        * Referenced by: '<S10>/Gain'
+  real_T TSamp_WtEt_o;                 /* Computed Parameter: TSamp_WtEt_o
+                                        * Referenced by: '<S10>/TSamp'
                                         */
-  real_T Constant3_Value;              /* Expression: -0.33
-                                        * Referenced by: '<S10>/Constant3'
-                                        */
-  real_T TSamp_WtEt_p;                 /* Computed Parameter: TSamp_WtEt_p
-                                        * Referenced by: '<S9>/TSamp'
-                                        */
-  real_T DiscreteZeroPole6_A_k;     /* Computed Parameter: DiscreteZeroPole6_A_k
+  real_T DiscreteZeroPole6_A_g;     /* Computed Parameter: DiscreteZeroPole6_A_g
                                      * Referenced by: '<S4>/Discrete Zero-Pole6'
                                      */
-  real_T DiscreteZeroPole6_C_p;     /* Computed Parameter: DiscreteZeroPole6_C_p
+  real_T DiscreteZeroPole6_C_j;     /* Computed Parameter: DiscreteZeroPole6_C_j
                                      * Referenced by: '<S4>/Discrete Zero-Pole6'
                                      */
   real_T DiscreteZeroPole6_D_l;     /* Computed Parameter: DiscreteZeroPole6_D_l
                                      * Referenced by: '<S4>/Discrete Zero-Pole6'
                                      */
-  uint8_T SFunctionBuilder2_P1;        /* Expression: uint8(0)
-                                        * Referenced by: '<S1>/S-Function Builder2'
+  uint8_T SFunctionBuilder3_P1;        /* Expression: uint8(0)
+                                        * Referenced by: '<S1>/S-Function Builder3'
                                         */
-  uint8_T SFunctionBuilder2_P2;        /* Expression: uint8(3)
-                                        * Referenced by: '<S1>/S-Function Builder2'
+  uint8_T SFunctionBuilder3_P2;        /* Expression: uint8(3)
+                                        * Referenced by: '<S1>/S-Function Builder3'
                                         */
-  uint8_T SFunctionBuilder2_P3;        /* Expression: uint8(35)
-                                        * Referenced by: '<S1>/S-Function Builder2'
+  uint8_T SFunctionBuilder3_P3;        /* Expression: uint8(35)
+                                        * Referenced by: '<S1>/S-Function Builder3'
                                         */
 };
 
@@ -251,6 +250,9 @@ extern B_Pendolo_Inverso_T Pendolo_Inverso_B;
 /* Block states (default storage) */
 extern DW_Pendolo_Inverso_T Pendolo_Inverso_DW;
 
+/* External data declarations for dependent source files */
+extern const real_T Pendolo_Inverso_RGND;/* real_T ground */
+
 /* External function called from main */
 extern void Pendolo_Inverso_SetEventsForThisBaseStep(boolean_T *eventFlags);
 
@@ -268,7 +270,7 @@ extern volatile boolean_T runModel;
 /*-
  * These blocks were eliminated from the model due to optimizations:
  *
- * Block '<S9>/Data Type Duplicate' : Unused code path elimination
+ * Block '<S10>/Data Type Duplicate' : Unused code path elimination
  * Block '<S14>/Display' : Unused code path elimination
  * Block '<S14>/Display1' : Unused code path elimination
  * Block '<S14>/Display2' : Unused code path elimination
@@ -297,13 +299,13 @@ extern volatile boolean_T runModel;
  * '<S1>'   : 'Pendolo_Inverso/Pendulum Control'
  * '<S2>'   : 'Pendolo_Inverso/check_input'
  * '<S3>'   : 'Pendolo_Inverso/check_torque'
- * '<S4>'   : 'Pendolo_Inverso/Pendulum Control/Check Position'
- * '<S5>'   : 'Pendolo_Inverso/Pendulum Control/Homing Block'
+ * '<S4>'   : 'Pendolo_Inverso/Pendulum Control/Check Position1'
+ * '<S5>'   : 'Pendolo_Inverso/Pendulum Control/Homing Block3'
  * '<S6>'   : 'Pendolo_Inverso/Pendulum Control/Move to Center'
  * '<S7>'   : 'Pendolo_Inverso/Pendulum Control/Read Angle'
  * '<S8>'   : 'Pendolo_Inverso/Pendulum Control/Selection'
- * '<S9>'   : 'Pendolo_Inverso/Pendulum Control/Check Position/Discrete Derivative'
- * '<S10>'  : 'Pendolo_Inverso/Pendulum Control/Check Position/To meters'
+ * '<S9>'   : 'Pendolo_Inverso/Pendulum Control/encoder to mm1'
+ * '<S10>'  : 'Pendolo_Inverso/Pendulum Control/Check Position1/Discrete Derivative'
  * '<S11>'  : 'Pendolo_Inverso/Pendulum Control/Read Angle/Convert3'
  * '<S12>'  : 'Pendolo_Inverso/Pendulum Control/Read Angle/Degrees to Radians2'
  * '<S13>'  : 'Pendolo_Inverso/Pendulum Control/Read Angle/Discrete Derivative2'

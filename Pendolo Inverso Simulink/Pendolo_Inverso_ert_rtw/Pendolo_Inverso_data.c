@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Pendolo_Inverso'.
  *
- * Model version                  : 1.25
+ * Model version                  : 1.30
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Wed Jan  8 14:38:05 2025
+ * C/C++ source code generated on : Mon Jan 13 09:52:51 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: Atmel->AVR
@@ -32,7 +32,7 @@ P_Pendolo_Inverso_T Pendolo_Inverso_P = {
   0.0,
 
   /* Mask Parameter: DiscreteDerivative_ICPrevScaled
-   * Referenced by: '<S9>/UD'
+   * Referenced by: '<S10>/UD'
    */
   0.0,
 
@@ -55,6 +55,16 @@ P_Pendolo_Inverso_T Pendolo_Inverso_P = {
    * Referenced by: '<S14>/Constant1'
    */
   511.5,
+
+  /* Expression: 2658
+   * Referenced by: '<S9>/Constant'
+   */
+  2658.0,
+
+  /* Expression: 656
+   * Referenced by: '<S9>/Constant1'
+   */
+  656.0,
 
   /* Expression: 360
    * Referenced by: '<S14>/Constant'
@@ -111,32 +121,22 @@ P_Pendolo_Inverso_T Pendolo_Inverso_P = {
    */
   0.0,
 
-  /* Expression: -1380
-   * Referenced by: '<S10>/Constant'
+  /* Expression: 1/1000
+   * Referenced by: '<S4>/toMeters'
    */
-  -1380.0,
+  0.001,
 
-  /* Expression: (0.66)/(1249+1380)
-   * Referenced by: '<S10>/Gain'
-   */
-  0.00025104602510460253,
-
-  /* Expression: -0.33
-   * Referenced by: '<S10>/Constant3'
-   */
-  -0.33,
-
-  /* Computed Parameter: TSamp_WtEt_p
-   * Referenced by: '<S9>/TSamp'
+  /* Computed Parameter: TSamp_WtEt_o
+   * Referenced by: '<S10>/TSamp'
    */
   200.0,
 
-  /* Computed Parameter: DiscreteZeroPole6_A_k
+  /* Computed Parameter: DiscreteZeroPole6_A_g
    * Referenced by: '<S4>/Discrete Zero-Pole6'
    */
   0.90483741803595952,
 
-  /* Computed Parameter: DiscreteZeroPole6_C_p
+  /* Computed Parameter: DiscreteZeroPole6_C_j
    * Referenced by: '<S4>/Discrete Zero-Pole6'
    */
   0.09048374180359596,
@@ -147,17 +147,17 @@ P_Pendolo_Inverso_T Pendolo_Inverso_P = {
   0.05,
 
   /* Expression: uint8(0)
-   * Referenced by: '<S1>/S-Function Builder2'
+   * Referenced by: '<S1>/S-Function Builder3'
    */
   0U,
 
   /* Expression: uint8(3)
-   * Referenced by: '<S1>/S-Function Builder2'
+   * Referenced by: '<S1>/S-Function Builder3'
    */
   3U,
 
   /* Expression: uint8(35)
-   * Referenced by: '<S1>/S-Function Builder2'
+   * Referenced by: '<S1>/S-Function Builder3'
    */
   35U
 };

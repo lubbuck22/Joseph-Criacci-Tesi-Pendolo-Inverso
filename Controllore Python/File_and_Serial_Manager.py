@@ -51,6 +51,7 @@ class Manager():
         self.root.withdraw()
         
 
+
         # Apri la finestra di dialogo per il salvataggio
         absolute_path = filedialog.asksaveasfilename(defaultextension=".zip",
                                                 filetypes=[("File zip", "*.zip")],
@@ -99,25 +100,26 @@ class Manager():
         self.root.mainloop()
         return self.port_name  # Restituisce la porta selezionata
 
-    def extract_low_high(self, filename):
+
+    def extract_info(self, filename):
         """
-        Estrae i valori di a e b da una stringa del tipo "DQN_CartPole_a_b.zip".
-        
+        Estrae i valori di algorithm, low e high dal nome del file.
+
         Args:
-        filename (str): La stringa da cui estrarre i valori.
-        
+            filename (str): Il percorso completo del file.
+
         Returns:
-        tuple: Una tupla contenente i valori di a e b come interi.
+            tuple: Una tupla contenente i valori di algorithm, low e high.
         """
         # Estrai il nome del file dal percorso completo
         base_filename = os.path.basename(filename)
-        
-        # Pattern regex per estrarre i valori di a e b
-        pattern = r"DQN_CartPole_(\d+)_(\d+)\.zip"
+        # Pattern regex per estrarre i valori di algorithm, low e high
+        pattern = r"(.+)_CartPole_(\d+)_(\d+)\.zip"
         match = re.match(pattern, base_filename)
         if match:
-            low = int(match.group(1))
-            high = int(match.group(2))
-            return low, high
+            algorithm = match.group(1)
+            low = int(match.group(2))
+            high = int(match.group(3))
+            return algorithm, low, high
         else:
             raise ValueError("La stringa non corrisponde al formato atteso.")

@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Pendolo_Inverso'.
  *
- * Model version                  : 1.25
+ * Model version                  : 1.30
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Wed Jan  8 14:38:05 2025
+ * C/C++ source code generated on : Mon Jan 13 09:52:51 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: Atmel->AVR
@@ -24,6 +24,8 @@
 #include <math.h>
 #include <stddef.h>
 #include "rt_nonfinite.h"
+
+const real_T Pendolo_Inverso_RGND = 0.0;/* real_T ground */
 
 /* Block signals (default storage) */
 B_Pendolo_Inverso_T Pendolo_Inverso_B;
@@ -130,11 +132,11 @@ void Pendolo_Inverso_step0(void)       /* Sample time: [0.0s, 0.0s] */
   /* local block i/o variables */
   real_T rtb_TSamp;
   real_T rtb_Diff;
-  real_T rtb_TSamp_a;
-  real_T rtb_Diff_m;
+  real_T rtb_TSamp_h;
+  real_T rtb_Diff_k;
   real_T rtb_DiscreteZeroPole6;
-  real_T rtb_DiscreteZeroPole6_f;
-  real_T rtb_Divide;
+  real_T rtb_DiscreteZeroPole6_j;
+  real_T rtb_Divide_l;
   int16_T i;
   uint16_T b_varargout_1;
   int8_T tmp;
@@ -181,11 +183,11 @@ void Pendolo_Inverso_step0(void)       /* Sample time: [0.0s, 0.0s] */
    *  MATLABSystem: '<Root>/Serial Receive2'
    * */
   if (b_status == 1) {
-    Pendolo_Inverso_B.torqueOut_c = rt_roundd_snf
+    Pendolo_Inverso_B.Gain1 = rt_roundd_snf
       (Pendolo_Inverso_B.rtb_SerialReceive2_o1_m[0]);
-    if (Pendolo_Inverso_B.torqueOut_c < 128.0) {
-      if (Pendolo_Inverso_B.torqueOut_c >= -128.0) {
-        tmp = (int8_T)Pendolo_Inverso_B.torqueOut_c;
+    if (Pendolo_Inverso_B.Gain1 < 128.0) {
+      if (Pendolo_Inverso_B.Gain1 >= -128.0) {
+        tmp = (int8_T)Pendolo_Inverso_B.Gain1;
       } else {
         tmp = MIN_int8_T;
       }
@@ -221,21 +223,28 @@ void Pendolo_Inverso_step0(void)       /* Sample time: [0.0s, 0.0s] */
     }
   }
 
-  Pendolo_Inverso_B.mode = Pendolo_Inverso_DW.mode_value;
   Pendolo_Inverso_B.enable = Pendolo_Inverso_DW.enable_value;
 
-  /* S-Function (sfcn_encoder): '<S1>/S-Function Builder2' */
-  sfcn_encoder_Outputs_wrapper(&Pendolo_Inverso_B.SFunctionBuilder2,
-    &Pendolo_Inverso_DW.SFunctionBuilder2_DSTATE,
-    &Pendolo_Inverso_P.SFunctionBuilder2_P1, 1,
-    &Pendolo_Inverso_P.SFunctionBuilder2_P2, 1,
-    &Pendolo_Inverso_P.SFunctionBuilder2_P3, 1);
+  /* S-Function (sfcn_encoder): '<S1>/S-Function Builder3' */
+  sfcn_encoder_Outputs_wrapper(&Pendolo_Inverso_B.SFunctionBuilder3,
+    &Pendolo_Inverso_DW.SFunctionBuilder3_DSTATE,
+    &Pendolo_Inverso_P.SFunctionBuilder3_P1, 1,
+    &Pendolo_Inverso_P.SFunctionBuilder3_P2, 1,
+    &Pendolo_Inverso_P.SFunctionBuilder3_P3, 1);
 
-  /* MATLAB Function: '<S1>/Homing Block' incorporates:
-   *  DataTypeConversion: '<S1>/Data Type Conversion'
+  /* Product: '<S9>/Product' incorporates:
+   *  Constant: '<S9>/Constant'
+   *  Constant: '<S9>/Constant1'
+   *  DataTypeConversion: '<S1>/Data Type Conversion2'
+   *  Product: '<S9>/Divide'
+   */
+  Pendolo_Inverso_B.Product = (real_T)Pendolo_Inverso_B.SFunctionBuilder3 /
+    Pendolo_Inverso_P.Constant_Value * Pendolo_Inverso_P.Constant1_Value_c;
+
+  /* MATLAB Function: '<S1>/Homing Block3' incorporates:
    *  MATLAB Function: '<Root>/check_input'
    */
-  if (Pendolo_Inverso_B.mode == 0.0) {
+  if (Pendolo_Inverso_DW.mode_value == 0.0) {
     if (Pendolo_Inverso_DW.homeval == 0.0) {
       if (Pendolo_Inverso_DW.home_value == 0.0) {
         Pendolo_Inverso_DW.state = 0.0;
@@ -247,20 +256,20 @@ void Pendolo_Inverso_step0(void)       /* Sample time: [0.0s, 0.0s] */
       }
 
       if (Pendolo_Inverso_DW.state == 0.0) {
-        Pendolo_Inverso_DW.torqueval_i = 0.0;
+        Pendolo_Inverso_DW.torqueval_l = 0.0;
         if (Pendolo_Inverso_DW.home_value == 1.0) {
           Pendolo_Inverso_DW.state = 1.0;
         }
       } else if (Pendolo_Inverso_DW.state == 1.0) {
-        Pendolo_Inverso_DW.torqueval_i = -300.0;
+        Pendolo_Inverso_DW.torqueval_l = -250.0;
         Pendolo_Inverso_DW.state = 2.0;
-      } else if (Pendolo_Inverso_DW.counter == 150.0) {
+      } else if (Pendolo_Inverso_DW.counter == 100.0) {
         y = true;
         i = 0;
         exitg1 = false;
         while ((!exitg1) && (i < 10)) {
-          if (!(Pendolo_Inverso_DW.precartArray[i] ==
-                Pendolo_Inverso_B.SFunctionBuilder2)) {
+          if (!(Pendolo_Inverso_DW.precartArray[i] == Pendolo_Inverso_B.Product))
+          {
             y = false;
             exitg1 = true;
           } else {
@@ -269,9 +278,9 @@ void Pendolo_Inverso_step0(void)       /* Sample time: [0.0s, 0.0s] */
         }
 
         if (y) {
-          Pendolo_Inverso_DW.torqueval_i = 0.0;
+          Pendolo_Inverso_DW.torqueval_l = 0.0;
           Pendolo_Inverso_DW.homeval = 1.0;
-          Pendolo_Inverso_DW.prepos = Pendolo_Inverso_B.SFunctionBuilder2;
+          Pendolo_Inverso_DW.prepos = Pendolo_Inverso_B.Product;
         } else {
           Pendolo_Inverso_DW.i++;
           Pendolo_Inverso_DW.precartArray[(int16_T)Pendolo_Inverso_DW.i - 1] =
@@ -280,7 +289,7 @@ void Pendolo_Inverso_step0(void)       /* Sample time: [0.0s, 0.0s] */
             Pendolo_Inverso_DW.i = 0.0;
           }
 
-          Pendolo_Inverso_DW.precart = Pendolo_Inverso_B.SFunctionBuilder2;
+          Pendolo_Inverso_DW.precart = Pendolo_Inverso_B.Product;
         }
       } else {
         Pendolo_Inverso_DW.counter++;
@@ -294,25 +303,28 @@ void Pendolo_Inverso_step0(void)       /* Sample time: [0.0s, 0.0s] */
   }
 
   if (Pendolo_Inverso_DW.homeval == 1.0) {
-    Pendolo_Inverso_B.cartPos = (-1382.0 - Pendolo_Inverso_DW.prepos) + (real_T)
-      Pendolo_Inverso_B.SFunctionBuilder2;
-  } else {
-    Pendolo_Inverso_B.cartPos = Pendolo_Inverso_B.SFunctionBuilder2;
+    Pendolo_Inverso_B.Product += -328.0 - Pendolo_Inverso_DW.prepos;
   }
 
   /* MATLAB Function: '<S1>/Move to Center' incorporates:
    *  MATLAB Function: '<Root>/check_input'
-   *  MATLAB Function: '<S1>/Homing Block'
+   *  MATLAB Function: '<S1>/Homing Block3'
    */
   if ((Pendolo_Inverso_DW.homeval == 1.0) &&
       (Pendolo_Inverso_DW.move_center_value == 1.0)) {
-    rtb_Divide = Pendolo_Inverso_DW.set_pos - Pendolo_Inverso_B.cartPos;
-    Pendolo_Inverso_B.torqueOut_c = rtb_Divide * Pendolo_Inverso_DW.kp;
-    if (fabs(rtb_Divide) < 1.0) {
-      Pendolo_Inverso_B.torqueOut_c = 0.0;
+    Pendolo_Inverso_B.Gain1 = Pendolo_Inverso_DW.set_pos -
+      Pendolo_Inverso_B.Product;
+
+    /* MATLAB Function: '<S1>/Selection' */
+    Pendolo_Inverso_DW.torqueval = Pendolo_Inverso_B.Gain1 *
+      Pendolo_Inverso_DW.kp;
+    if (fabs(Pendolo_Inverso_B.Gain1) < 1.0) {
+      /* MATLAB Function: '<S1>/Selection' */
+      Pendolo_Inverso_DW.torqueval = 0.0;
     }
   } else {
-    Pendolo_Inverso_B.torqueOut_c = Pendolo_Inverso_DW.torqueval_i;
+    /* MATLAB Function: '<S1>/Selection' */
+    Pendolo_Inverso_DW.torqueval = Pendolo_Inverso_DW.torqueval_l;
   }
 
   /* End of MATLAB Function: '<S1>/Move to Center' */
@@ -325,26 +337,10 @@ void Pendolo_Inverso_step0(void)       /* Sample time: [0.0s, 0.0s] */
       [1];
   }
 
-  /* MATLAB Function: '<S1>/Selection' incorporates:
-   *  MATLAB Function: '<Root>/check_input'
-   *  MATLAB Function: '<Root>/check_torque'
-   *  MATLAB Function: '<S1>/Homing Block'
-   */
-  if (Pendolo_Inverso_B.mode == 0.0) {
-    Pendolo_Inverso_DW.torqueval = Pendolo_Inverso_B.torqueOut_c;
-  }
+  /* End of MATLAB Function: '<Root>/check_torque' */
 
-  if ((Pendolo_Inverso_B.mode == 1.0) && (Pendolo_Inverso_DW.homeval == 1.0)) {
-    if (Pendolo_Inverso_DW.enable_control_value == 1.0) {
-      Pendolo_Inverso_DW.torqueval = Pendolo_Inverso_DW.torque_value;
-    } else {
-      Pendolo_Inverso_DW.torqueval = 0.0;
-    }
-  }
-
+  /* MATLAB Function: '<S1>/Selection' */
   Pendolo_Inverso_B.torqueOut = Pendolo_Inverso_DW.torqueval;
-
-  /* End of MATLAB Function: '<S1>/Selection' */
 
   /* MATLABSystem: '<S7>/Analog Input3' */
   if (Pendolo_Inverso_DW.obj_e.SampleTime != Pendolo_Inverso_P.Tc) {
@@ -366,9 +362,9 @@ void Pendolo_Inverso_step0(void)       /* Sample time: [0.0s, 0.0s] */
    *  Constant: '<S14>/Constant'
    *  Sum: '<S14>/Subtract'
    */
-  rtb_Divide = (Pendolo_Inverso_B.FromWorkspace[0] -
-                Pendolo_Inverso_B.FromWorkspace[1]) /
-    Pendolo_Inverso_P.Constant_Value;
+  rtb_Divide_l = (Pendolo_Inverso_B.FromWorkspace[0] -
+                  Pendolo_Inverso_B.FromWorkspace[1]) /
+    Pendolo_Inverso_P.Constant_Value_c;
 
   /* If: '<S14>/If' incorporates:
    *  Constant: '<S14>/Constant1'
@@ -384,7 +380,7 @@ void Pendolo_Inverso_step0(void)       /* Sample time: [0.0s, 0.0s] */
     /* Outputs for IfAction SubSystem: '<S14>/If Action Subsystem' incorporates:
      *  ActionPort: '<S15>/Action Port'
      */
-    Pendolo_Inverso_B.torqueOut_c = Pendolo_Inverso_B.FromWorkspace[2] +
+    Pendolo_Inverso_B.Gain1 = Pendolo_Inverso_B.FromWorkspace[2] +
       Pendolo_Inverso_P.Constant1_Value;
 
     /* End of Outputs for SubSystem: '<S14>/If Action Subsystem' */
@@ -392,15 +388,15 @@ void Pendolo_Inverso_step0(void)       /* Sample time: [0.0s, 0.0s] */
     /* Outputs for IfAction SubSystem: '<S14>/If Action Subsystem1' incorporates:
      *  ActionPort: '<S16>/Action Port'
      */
-    Pendolo_Inverso_B.torqueOut_c = Pendolo_Inverso_B.FromWorkspace[2] -
+    Pendolo_Inverso_B.Gain1 = Pendolo_Inverso_B.FromWorkspace[2] -
       Pendolo_Inverso_P.Constant1_Value;
 
     /* End of Outputs for SubSystem: '<S14>/If Action Subsystem1' */
   }
 
   Pendolo_Inverso_B.Subtract1 = Pendolo_Inverso_B.DataTypeConversion3 /
-    rtb_Divide - (Pendolo_Inverso_P.RodOffset_Value +
-                  Pendolo_Inverso_B.torqueOut_c) / rtb_Divide;
+    rtb_Divide_l - (Pendolo_Inverso_P.RodOffset_Value + Pendolo_Inverso_B.Gain1)
+    / rtb_Divide_l;
 
   /* End of If: '<S14>/If' */
 
@@ -414,16 +410,16 @@ void Pendolo_Inverso_step0(void)       /* Sample time: [0.0s, 0.0s] */
 
   /* S-Function (sfcn_toPins): '<S1>/S-Function Builder' */
   sfcn_toPins_Outputs_wrapper(&Pendolo_Inverso_B.enable,
-    &Pendolo_Inverso_B.rodangle, &Pendolo_Inverso_B.torqueOut,
-    &Pendolo_Inverso_B.mode, &Pendolo_Inverso_B.cartPos,
+    &Pendolo_Inverso_B.rodangle, &Pendolo_Inverso_B.torqueOut, ((const real_T*)
+    &Pendolo_Inverso_RGND), ((const real_T*) &Pendolo_Inverso_RGND),
     &Pendolo_Inverso_B.DataTypeConversion3, &Pendolo_Inverso_B.EnableOut,
     &Pendolo_Inverso_B.Dir, &Pendolo_Inverso_B.PWMOut);
 
   /* MATLABSystem: '<S1>/Digital Output19' */
-  Pendolo_Inverso_B.torqueOut_c = rt_roundd_snf(Pendolo_Inverso_B.EnableOut);
-  if (Pendolo_Inverso_B.torqueOut_c < 256.0) {
-    if (Pendolo_Inverso_B.torqueOut_c >= 0.0) {
-      b_status = (uint8_T)Pendolo_Inverso_B.torqueOut_c;
+  Pendolo_Inverso_B.Gain1 = rt_roundd_snf(Pendolo_Inverso_B.EnableOut);
+  if (Pendolo_Inverso_B.Gain1 < 256.0) {
+    if (Pendolo_Inverso_B.Gain1 >= 0.0) {
+      b_status = (uint8_T)Pendolo_Inverso_B.Gain1;
     } else {
       b_status = 0U;
     }
@@ -436,10 +432,10 @@ void Pendolo_Inverso_step0(void)       /* Sample time: [0.0s, 0.0s] */
   /* End of MATLABSystem: '<S1>/Digital Output19' */
 
   /* MATLABSystem: '<S1>/Digital Output20' */
-  Pendolo_Inverso_B.torqueOut_c = rt_roundd_snf(Pendolo_Inverso_B.Dir);
-  if (Pendolo_Inverso_B.torqueOut_c < 256.0) {
-    if (Pendolo_Inverso_B.torqueOut_c >= 0.0) {
-      b_status = (uint8_T)Pendolo_Inverso_B.torqueOut_c;
+  Pendolo_Inverso_B.Gain1 = rt_roundd_snf(Pendolo_Inverso_B.Dir);
+  if (Pendolo_Inverso_B.Gain1 < 256.0) {
+    if (Pendolo_Inverso_B.Gain1 >= 0.0) {
+      b_status = (uint8_T)Pendolo_Inverso_B.Gain1;
     } else {
       b_status = 0U;
     }
@@ -456,21 +452,21 @@ void Pendolo_Inverso_step0(void)       /* Sample time: [0.0s, 0.0s] */
 
   /* Start for MATLABSystem: '<S1>/PWM3' */
   if (Pendolo_Inverso_B.PWMOut <= 255.0) {
-    Pendolo_Inverso_B.torqueOut_c = Pendolo_Inverso_B.PWMOut;
+    Pendolo_Inverso_B.Gain1 = Pendolo_Inverso_B.PWMOut;
   } else {
-    Pendolo_Inverso_B.torqueOut_c = 255.0;
+    Pendolo_Inverso_B.Gain1 = 255.0;
   }
 
-  if (!(Pendolo_Inverso_B.torqueOut_c >= 0.0)) {
-    Pendolo_Inverso_B.torqueOut_c = 0.0;
+  if (!(Pendolo_Inverso_B.Gain1 >= 0.0)) {
+    Pendolo_Inverso_B.Gain1 = 0.0;
   }
 
   /* MATLABSystem: '<S1>/PWM3' */
   MW_PWM_SetDutyCycle(Pendolo_Inverso_DW.obj_f.PWMDriverObj.MW_PWM_HANDLE,
-                      Pendolo_Inverso_B.torqueOut_c);
+                      Pendolo_Inverso_B.Gain1);
 
   /* Gain: '<S12>/Gain1' */
-  Pendolo_Inverso_B.torqueOut_c = Pendolo_Inverso_P.Gain1_Gain *
+  Pendolo_Inverso_B.Gain1 = Pendolo_Inverso_P.Gain1_Gain *
     Pendolo_Inverso_B.rodangle;
 
   /* SampleTimeMath: '<S13>/TSamp'
@@ -478,7 +474,7 @@ void Pendolo_Inverso_step0(void)       /* Sample time: [0.0s, 0.0s] */
    * About '<S13>/TSamp':
    *  y = u * K where K = 1 / ( w * Ts )
    *   */
-  rtb_TSamp = Pendolo_Inverso_B.torqueOut_c * Pendolo_Inverso_P.TSamp_WtEt;
+  rtb_TSamp = Pendolo_Inverso_B.Gain1 * Pendolo_Inverso_P.TSamp_WtEt;
 
   /* Sum: '<S13>/Diff' incorporates:
    *  UnitDelay: '<S13>/UD'
@@ -500,40 +496,34 @@ void Pendolo_Inverso_step0(void)       /* Sample time: [0.0s, 0.0s] */
       Pendolo_Inverso_DW.DiscreteZeroPole6_DSTATE;
   }
 
-  /* Sum: '<S10>/Sum1' incorporates:
-   *  Constant: '<S10>/Constant'
-   *  Constant: '<S10>/Constant3'
-   *  Gain: '<S10>/Gain'
-   *  Sum: '<S10>/Sum'
-   */
-  rtb_Divide = (Pendolo_Inverso_B.cartPos - Pendolo_Inverso_P.Constant_Value_j) *
-    Pendolo_Inverso_P.Gain_Gain + Pendolo_Inverso_P.Constant3_Value;
+  /* Gain: '<S4>/toMeters' */
+  Pendolo_Inverso_B.Product *= Pendolo_Inverso_P.toMeters_Gain;
 
-  /* SampleTimeMath: '<S9>/TSamp'
+  /* SampleTimeMath: '<S10>/TSamp'
    *
-   * About '<S9>/TSamp':
+   * About '<S10>/TSamp':
    *  y = u * K where K = 1 / ( w * Ts )
    *   */
-  rtb_TSamp_a = rtb_Divide * Pendolo_Inverso_P.TSamp_WtEt_p;
+  rtb_TSamp_h = Pendolo_Inverso_B.Product * Pendolo_Inverso_P.TSamp_WtEt_o;
 
-  /* Sum: '<S9>/Diff' incorporates:
-   *  UnitDelay: '<S9>/UD'
+  /* Sum: '<S10>/Diff' incorporates:
+   *  UnitDelay: '<S10>/UD'
    *
-   * Block description for '<S9>/Diff':
+   * Block description for '<S10>/Diff':
    *
    *  Add in CPU
    *
-   * Block description for '<S9>/UD':
+   * Block description for '<S10>/UD':
    *
    *  Store in Global RAM
    */
-  rtb_Diff_m = rtb_TSamp_a - Pendolo_Inverso_DW.UD_DSTATE_n;
+  rtb_Diff_k = rtb_TSamp_h - Pendolo_Inverso_DW.UD_DSTATE_n;
 
   /* DiscreteZeroPole: '<S4>/Discrete Zero-Pole6' */
   {
-    rtb_DiscreteZeroPole6_f = Pendolo_Inverso_P.DiscreteZeroPole6_D_l*rtb_Diff_m;
-    rtb_DiscreteZeroPole6_f += Pendolo_Inverso_P.DiscreteZeroPole6_C_p*
-      Pendolo_Inverso_DW.DiscreteZeroPole6_DSTATE_g;
+    rtb_DiscreteZeroPole6_j = Pendolo_Inverso_P.DiscreteZeroPole6_D_l*rtb_Diff_k;
+    rtb_DiscreteZeroPole6_j += Pendolo_Inverso_P.DiscreteZeroPole6_C_j*
+      Pendolo_Inverso_DW.DiscreteZeroPole6_DSTATE_h;
   }
 
   /* RateTransition: '<Root>/Rate Transition1' incorporates:
@@ -542,22 +532,22 @@ void Pendolo_Inverso_step0(void)       /* Sample time: [0.0s, 0.0s] */
   if (Pendolo_Inverso_M->Timing.RateInteraction.TID1_2) {
     Pendolo_Inverso_DW.RateTransition1_Buffer[0] =
       Pendolo_Inverso_P.Constant_Value_o;
-    Pendolo_Inverso_DW.RateTransition1_Buffer[1] = rtb_Divide;
-    Pendolo_Inverso_DW.RateTransition1_Buffer[2] = rtb_DiscreteZeroPole6_f;
-    Pendolo_Inverso_DW.RateTransition1_Buffer[3] = Pendolo_Inverso_B.torqueOut_c;
+    Pendolo_Inverso_DW.RateTransition1_Buffer[1] = Pendolo_Inverso_B.Product;
+    Pendolo_Inverso_DW.RateTransition1_Buffer[2] = rtb_DiscreteZeroPole6_j;
+    Pendolo_Inverso_DW.RateTransition1_Buffer[3] = Pendolo_Inverso_B.Gain1;
     Pendolo_Inverso_DW.RateTransition1_Buffer[4] = rtb_DiscreteZeroPole6;
   }
 
   /* End of RateTransition: '<Root>/Rate Transition1' */
 
-  /* Update for S-Function (sfcn_encoder): '<S1>/S-Function Builder2' */
+  /* Update for S-Function (sfcn_encoder): '<S1>/S-Function Builder3' */
 
-  /* S-Function "sfcn_encoder_wrapper" Block: <S1>/S-Function Builder2 */
-  sfcn_encoder_Update_wrapper(&Pendolo_Inverso_B.SFunctionBuilder2,
-    &Pendolo_Inverso_DW.SFunctionBuilder2_DSTATE,
-    &Pendolo_Inverso_P.SFunctionBuilder2_P1, 1,
-    &Pendolo_Inverso_P.SFunctionBuilder2_P2, 1,
-    &Pendolo_Inverso_P.SFunctionBuilder2_P3, 1);
+  /* S-Function "sfcn_encoder_wrapper" Block: <S1>/S-Function Builder3 */
+  sfcn_encoder_Update_wrapper(&Pendolo_Inverso_B.SFunctionBuilder3,
+    &Pendolo_Inverso_DW.SFunctionBuilder3_DSTATE,
+    &Pendolo_Inverso_P.SFunctionBuilder3_P1, 1,
+    &Pendolo_Inverso_P.SFunctionBuilder3_P2, 1,
+    &Pendolo_Inverso_P.SFunctionBuilder3_P3, 1);
 
   /* Update for DiscreteZeroPole: '<S7>/Discrete Zero-Pole1' */
   {
@@ -581,19 +571,19 @@ void Pendolo_Inverso_step0(void)       /* Sample time: [0.0s, 0.0s] */
       Pendolo_Inverso_DW.DiscreteZeroPole6_DSTATE;
   }
 
-  /* Update for UnitDelay: '<S9>/UD'
+  /* Update for UnitDelay: '<S10>/UD'
    *
-   * Block description for '<S9>/UD':
+   * Block description for '<S10>/UD':
    *
    *  Store in Global RAM
    */
-  Pendolo_Inverso_DW.UD_DSTATE_n = rtb_TSamp_a;
+  Pendolo_Inverso_DW.UD_DSTATE_n = rtb_TSamp_h;
 
   /* Update for DiscreteZeroPole: '<S4>/Discrete Zero-Pole6' */
   {
-    Pendolo_Inverso_DW.DiscreteZeroPole6_DSTATE_g = rtb_Diff_m +
-      Pendolo_Inverso_P.DiscreteZeroPole6_A_k*
-      Pendolo_Inverso_DW.DiscreteZeroPole6_DSTATE_g;
+    Pendolo_Inverso_DW.DiscreteZeroPole6_DSTATE_h = rtb_Diff_k +
+      Pendolo_Inverso_P.DiscreteZeroPole6_A_g*
+      Pendolo_Inverso_DW.DiscreteZeroPole6_DSTATE_h;
   }
 
   /* Update absolute time */
@@ -684,16 +674,16 @@ void Pendolo_Inverso_initialize(void)
     Pendolo_Inverso_DW.FromWorkspace_IWORK.PrevIndex = 0;
   }
 
-  /* InitializeConditions for S-Function (sfcn_encoder): '<S1>/S-Function Builder2' */
+  /* InitializeConditions for S-Function (sfcn_encoder): '<S1>/S-Function Builder3' */
 
-  /* S-Function Block: <S1>/S-Function Builder2 */
+  /* S-Function Block: <S1>/S-Function Builder3 */
   {
     real_T initVector[1] = { 0 };
 
     {
       int_T i1;
       for (i1=0; i1 < 1; i1++) {
-        Pendolo_Inverso_DW.SFunctionBuilder2_DSTATE = initVector[0];
+        Pendolo_Inverso_DW.SFunctionBuilder3_DSTATE = initVector[0];
       }
     }
   }
@@ -707,9 +697,9 @@ void Pendolo_Inverso_initialize(void)
   Pendolo_Inverso_DW.UD_DSTATE =
     Pendolo_Inverso_P.DiscreteDerivative2_ICPrevScale;
 
-  /* InitializeConditions for UnitDelay: '<S9>/UD'
+  /* InitializeConditions for UnitDelay: '<S10>/UD'
    *
-   * Block description for '<S9>/UD':
+   * Block description for '<S10>/UD':
    *
    *  Store in Global RAM
    */

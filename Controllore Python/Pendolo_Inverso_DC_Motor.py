@@ -97,7 +97,8 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         #### Valori nominali 
         self.masscart_nominal = 0.6  # Massa del carrello
         self.masspole_nominal = 0.1528  # Massa del pendolo
-        self.length_nominal = 0.2  # Lunghezza del pendolo (in realtà metà della lunghezza effettiva)
+        self.length_nominal = 0.4  # Lunghezza del pendolo
+        self.inertia_nominal = 0.000814971   # Momento d'inerzia del pendolo
         self.max_nominal_voltage = 12.0  # Tensione massima del motore
         self.Ra_nominal = 180/83  # Resistenza nominale
         self.K_nominal = 18/(83*math.pi)  # Costante elettromeccanica nominale
@@ -105,13 +106,14 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.friction_coefficient_nominal = 0.0000765  # Coefficiente di attrito
         self.damping_coefficient_nominal = 0.001968  # Coefficiente di smorzamento
 
-        self.uncertainty = 0.05 # Margine di errore per i valori nominali
-        self.noise = 0.05  # Rumore
+        self.uncertainty = 0.0 # Margine di errore per i valori nominali
+        self.noise = 0.0  # Rumore
 
         #### Valori reali
         self.masscart = self.apply_error(self.masscart_nominal, self.uncertainty)
         self.masspole = self.apply_error(self.masspole_nominal, self.uncertainty)
         self.length = self.apply_error(self.length_nominal, self.uncertainty)
+        self.inertia = self.apply_error(self.inertia_nominal, self.uncertainty)
         self.Ra = self.apply_error(self.Ra_nominal, self.uncertainty)
         self.K = self.apply_error(self.K_nominal, self.uncertainty)
         self.r = self.apply_error(self.r_nominal, self.uncertainty)
@@ -123,7 +125,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.total_mass = self.masspole + self.masscart  # Massa totale del sistema
         self.polemass_length = self.masspole * self.length  # Prodotto tra la massa del pendolo e la sua lunghezza
 
-        self.old_action = 0.0  # Tensione precedente applicata
+        self.old_action = 0.0  # PWM precedente applicata
         
         self.low_PWM = 80.0
         self.high_PWM = 120.0
@@ -225,8 +227,8 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         terminated = bool(
             x < -self.x_threshold
             or x > self.x_threshold
-            or theta < -self.theta_threshold_radians
-            or theta > self.theta_threshold_radians
+            or theta < math.pi -self.theta_threshold_radians
+            or theta > math.pi + self.theta_threshold_radians
         )
 
         # Ricompensa in base allo stato del sistema
@@ -266,16 +268,24 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             x, x_dot, theta, theta_dot = state
             costheta = np.cos(theta)
             sintheta = np.sin(theta)
+            tantheta = np.tan(theta)
 
             # Forze di attrito e smorzamento
             friction_force = self.friction_coefficient * x_dot
             damping_force = self.damping_coefficient * theta_dot
 
-            # Equazioni del moto
-            temp = (force - friction_force + self.polemass_length * theta_dot ** 2 * sintheta) / self.total_mass
+             # Equazioni del moto
+            """ temp = (force - friction_force + self.polemass_length * theta_dot ** 2 * sintheta) / self.total_mass
             theta_acc = (self.gravity * sintheta - costheta * temp - damping_force / self.length) / \
                         (self.length * (4.0 / 3.0 - self.masspole * costheta ** 2 / self.total_mass))
-            x_acc = temp - self.polemass_length * theta_acc * costheta / self.total_mass
+            x_acc = temp - self.polemass_length * theta_acc * costheta / self.total_mass """
+
+            #E' realistico
+            q = (-self.total_mass*(self.inertia + self.polemass_length*self.length) + (self.polemass_length * costheta)**2)/(self.polemass_length * costheta)
+
+            theta_acc = (-friction_force + self.gravity*self.total_mass*tantheta + self.polemass_length*(theta_dot**2)*sintheta + force)/q
+
+            x_acc = -((self.inertia + self.polemass_length*self.length)*theta_acc)/(self.polemass_length*costheta) - self.gravity*tantheta
 
             return np.array([x_dot, x_acc, theta_dot, theta_acc])
         state = np.array(self.state) # Vettore di Stato
@@ -322,6 +332,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.masscart = self.apply_error(self.masscart_nominal, self.uncertainty)
         self.masspole = self.apply_error(self.masspole_nominal, self.uncertainty)
         self.length = self.apply_error(self.length_nominal, self.uncertainty)
+        self.inertia = self.apply_error(self.inertia_nominal, self.uncertainty)
         self.Ra = self.apply_error(self.Ra_nominal, self.uncertainty)
         self.K = self.apply_error(self.K_nominal, self.uncertainty)
         self.r = self.apply_error(self.r_nominal, self.uncertainty)
@@ -353,7 +364,8 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.state = self.np_random.uniform(low=low, high=high, size=(4,))
         self.steps_beyond_terminated = None
 
-
+        x, x_dot, phi, phi_dot = self.state
+        self.state = x, x_dot, math.pi + phi, phi_dot
         # Applica variazioni ai valori nominali
         self.apply_uncertainty()
         
@@ -397,7 +409,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         world_width = self.x_threshold * 2
         scale = self.screen_width / world_width
         polewidth = 10.0
-        polelen = scale * (2 * self.length)
+        polelen = scale * (self.length)
         cartwidth = 50.0
         cartheight = 30.0
 
@@ -427,7 +439,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
         pole_coords = []
         for coord in [(l, b), (l, t), (r, t), (r, b)]:
-            coord = pygame.math.Vector2(coord).rotate_rad(-x[2])
+            coord = pygame.math.Vector2(coord).rotate_rad((x[2])-math.pi)
             coord = (coord[0] + cartx, coord[1] + carty + axleoffset)
             pole_coords.append(coord)
         gfxdraw.aapolygon(self.surf, pole_coords, (202, 152, 101))

@@ -1,7 +1,8 @@
 import serial  # Libreria per la comunicazione seriale
 import struct  # Libreria per la conversione dei dati in formato binario
 import keyboard  # Libreria per gestire gli input della tastiera
-from stable_baselines3 import DQN  # Algoritmo DQN per l'apprendimento per rinforzo
+import math # Libreria per le operazioni matematiche
+from stable_baselines3 import DQN, PPO  # Algoritmo DQN per l'apprendimento per rinforzo
 from Pendolo_Inverso_DC_Motor import CartPoleEnv  # Ambiente per il pendolo inverso
 from File_and_Serial_Manager import Manager
 
@@ -19,6 +20,8 @@ CLEAN_TERMINAL = chr(27) + "[2J"
 # Valore infinito, usato per sincronizzare la comunicazione
 INF = float('inf')
 
+# Algoritmi di apprendimento per rinforzo
+ALGORITHMS = ["DQN", "PPO"]
 # Variabili globali per il controllo dei vari comandi
 enable_value = 0
 home_value = 0
@@ -92,10 +95,19 @@ def main():
     print("Scegli un modello di allenamento (N.B.: la finestra di dialogo potrebbe essere nascosta)")
     model_file = manager.choose_file()
 
-    # Adatta l'ambiente ai valori di low_PWM e high_PWM del modello
-    low, high = manager.extract_low_high(model_file)
-    env.set_PWM_values(low_PWM=low, high_PWM=high)
-    model = DQN.load(model_file, env)
+    try:
+        algorithm, low, high = manager.extract_info(model_file)
+        env.set_PWM_values(low_PWM=low, high_PWM=high)
+    except:
+        print("Il file non ha un formato valido, valori PWM predefiniti")
+
+        user_choice = int(input(f"Quale algoritmo vuoi utilizzare? 1: DQN, 2: PPO\n"))
+        algorithm = ALGORITHMS[user_choice - 1]
+
+    if(algorithm == "DQN"):
+        model = DQN.load(model_file, env)
+    elif(algorithm == "PPO"):
+        model = PPO.load(model_file, env)
 
     print("Scegli la porta seriale da utilizzare (N.B.: la finestra di dialogo potrebbe essere nascosta)")
     porta_seriale = manager.get_serial_port()
@@ -131,8 +143,11 @@ def main():
                 # Legge i valori dal dispositivo tramite seriale
                 x = read_line(ser)
                 x_dot = read_line(ser)
-                theta = read_line(ser)
-                theta_dot = read_line(ser)
+                phi = read_line(ser)
+                phi_dot = read_line(ser)
+
+                theta = math.pi + phi
+                theta_dot = phi_dot
 
                 # Se i controlli sono attivi, calcola la coppia da inviare
                 torqueOut = 0
@@ -141,6 +156,7 @@ def main():
                     obs = [x, x_dot, theta, theta_dot]
                     action, _states = model.predict(obs, deterministic=True)  # Prevede l'azione da eseguire
                     torqueOut = env.action_to_torque(action)  # Converte l'azione in coppia
+
 
                 # Invia il messaggio e il valore di coppia
                 sent_message = message_to_send

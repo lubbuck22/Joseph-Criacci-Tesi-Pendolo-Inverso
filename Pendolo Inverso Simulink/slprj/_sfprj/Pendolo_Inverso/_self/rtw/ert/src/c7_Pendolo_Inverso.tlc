@@ -1,0 +1,75 @@
+%implements "chartSource" "C"
+%function ChartConfig(block, system) void
+  %createrecord chartConfiguration { ...
+          executeAtInitialization  0 ...
+  }
+  %return chartConfiguration
+%endfunction
+%function ChartDataMap(block, system) void
+  %createrecord ChartDataElements {\
+    NumChartData   8 \
+    ChartDataDefaults {\
+      RecordType   "ChartData"\
+      Dimensions   []\
+      IsTestPoint  0\
+    }\
+    ChartData {\
+      Name         "torqueval"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendolo_Inverso:1510:68-77"\
+    }\
+    ChartData {\
+      Name         "state"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendolo_Inverso:1510:89-94"\
+    }\
+    ChartData {\
+      Name         "homeval"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendolo_Inverso:1510:128-135"\
+    }\
+    ChartData {\
+      Name         "counter"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendolo_Inverso:1510:147-154"\
+    }\
+    ChartData {\
+      Name         "i"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendolo_Inverso:1510:166-167"\
+    }\
+    ChartData {\
+      Name         "precart"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendolo_Inverso:1510:179-186"\
+    }\
+    ChartData {\
+      Name         "prepos"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendolo_Inverso:1510:198-204"\
+    }\
+    ChartData {\
+      Name         "precartArray"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendolo_Inverso:1510:216-228"\
+      Dimensions   [1,10]\
+    }\
+  }
+  %return ChartDataElements
+%endfunction

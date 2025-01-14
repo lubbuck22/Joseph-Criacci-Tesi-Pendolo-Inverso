@@ -1,0 +1,159 @@
+%implements "chartSource" "C"
+%function ChartConfig(block, system) void
+  %createrecord chartConfiguration { ...
+          executeAtInitialization  0 ...
+  }
+  %return chartConfiguration
+%endfunction
+%function ChartDataMap(block, system) void
+  %createrecord ChartDataElements {\
+    NumChartData   20 \
+    ChartDataDefaults {\
+      RecordType   "ChartData"\
+      Dimensions   []\
+      IsTestPoint  0\
+    }\
+    ChartData {\
+      Name         "sfEvent"\
+      Description  "ActiveChartEvent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  ""\
+    }\
+    ChartData {\
+      Name         "doneDoubleBufferReInit"\
+      Description  "DoubleBufferInitCheck"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  ""\
+    }\
+    ChartData {\
+      Name         "torqueval"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendulum_Data_Visual:127:68-77"\
+    }\
+    ChartData {\
+      Name         "torqueval_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendulum_Data_Visual:127:68-77"\
+    }\
+    ChartData {\
+      Name         "state"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendulum_Data_Visual:127:89-94"\
+    }\
+    ChartData {\
+      Name         "state_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendulum_Data_Visual:127:89-94"\
+    }\
+    ChartData {\
+      Name         "precartEnc"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendulum_Data_Visual:127:106-116"\
+    }\
+    ChartData {\
+      Name         "precartEnc_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendulum_Data_Visual:127:106-116"\
+    }\
+    ChartData {\
+      Name         "homeval"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendulum_Data_Visual:127:128-135"\
+    }\
+    ChartData {\
+      Name         "homeval_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendulum_Data_Visual:127:128-135"\
+    }\
+    ChartData {\
+      Name         "counter"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendulum_Data_Visual:127:147-154"\
+    }\
+    ChartData {\
+      Name         "counter_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendulum_Data_Visual:127:147-154"\
+    }\
+    ChartData {\
+      Name         "i"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendulum_Data_Visual:127:166-167"\
+    }\
+    ChartData {\
+      Name         "i_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendulum_Data_Visual:127:166-167"\
+    }\
+    ChartData {\
+      Name         "precart"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendulum_Data_Visual:127:179-186"\
+    }\
+    ChartData {\
+      Name         "precart_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendulum_Data_Visual:127:179-186"\
+    }\
+    ChartData {\
+      Name         "prepos"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendulum_Data_Visual:127:198-204"\
+    }\
+    ChartData {\
+      Name         "prepos_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendulum_Data_Visual:127:198-204"\
+    }\
+    ChartData {\
+      Name         "precartArray"\
+      Description  "EmlPersistent"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendulum_Data_Visual:127:216-228"\
+      Dimensions   [1,10]\
+    }\
+    ChartData {\
+      Name         "precartArray_not_empty"\
+      Description  "EmlPersistentSentinel"\
+      SFName       ""\
+      Path         ""\
+      SrcLocation  "Pendulum_Data_Visual:127:216-228"\
+    }\
+  }
+  %return ChartDataElements
+%endfunction

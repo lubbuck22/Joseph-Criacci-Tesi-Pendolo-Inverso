@@ -79,8 +79,7 @@ if (Enable[0] == 1) {
       dirIn = 0;
     }
   } else {
-      if (((-20) <= (Analog[0]) && (Analog[0] <= 20)) &&
-              (1370 >= (cartPos[0]) && (cartPos[0]) >= (-1370))) {
+      if (((-20) <= (Analog[0]) && (Analog[0] <= 20))) {
         if (torqueOut[0] <= 0) {
           scale = (-torqueOut[0] / 5.8824);
           dirIn = 1;

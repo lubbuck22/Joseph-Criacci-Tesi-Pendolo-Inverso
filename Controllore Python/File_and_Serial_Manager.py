@@ -114,12 +114,10 @@ class Manager():
         # Estrai il nome del file dal percorso completo
         base_filename = os.path.basename(filename)
         # Pattern regex per estrarre i valori di algorithm, low e high
-        pattern = r"(.+)_CartPole_(\d+)_(\d+)\.zip"
+        pattern = r"(.+)_CartPole_(.+).zip"
         match = re.match(pattern, base_filename)
         if match:
             algorithm = match.group(1)
-            low = int(match.group(2))
-            high = int(match.group(3))
-            return algorithm, low, high
+            return algorithm
         else:
             raise ValueError("La stringa non corrisponde al formato atteso.")

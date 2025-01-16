@@ -2,7 +2,7 @@
 ## Makefile generated for component 'Pendolo_Inverso'. 
 ## 
 ## Makefile     : Pendolo_Inverso.mk
-## Generated on : Tue Oct 29 15:42:26 2024
+## Generated on : Tue Jan 14 11:44:24 2025
 ## Final product: $(RELATIVE_PATH_TO_ANCHOR)/Pendolo_Inverso.elf
 ## Product type : executable
 ## 
@@ -220,7 +220,7 @@ DEFINES = $(DEFINES_) $(DEFINES_BUILD_ARGS) $(DEFINES_CUSTOM) $(DEFINES_OPTS) $(
 ## SOURCE FILES
 ###########################################################################
 
-SRCS = C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinobase/src/MW_arduino_digitalio.cpp C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinobase/src/MW_PWM.cpp C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinobase/src/MW_PWMDriver.c C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinobase/src/ArduinoPinHandleMap.cpp C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinobase/src/MW_AnalogInput.cpp C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinobase/src/MW_SerialRead.cpp C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinobase/src/MW_SerialWrite.cpp $(START_DIR)/Pendolo_Inverso_ert_rtw/Pendolo_Inverso.c $(START_DIR)/Pendolo_Inverso_ert_rtw/Pendolo_Inverso_data.c $(START_DIR)/Pendolo_Inverso_ert_rtw/rtGetInf.c $(START_DIR)/Pendolo_Inverso_ert_rtw/rtGetNaN.c $(START_DIR)/Pendolo_Inverso_ert_rtw/rt_nonfinite.c $(START_DIR)/sfcn_encoder_wrapper.c $(START_DIR)/sfcn_toPins_wrapper.c C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinotarget/src/MW_ArduinoHWInit.cpp C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinobase/src/io_wrappers.cpp C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinotarget/scheduler/src/arduinoAVRScheduler.cpp
+SRCS = C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinobase/src/MW_arduino_digitalio.cpp C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinobase/src/MW_PWM.cpp C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinobase/src/MW_PWMDriver.c C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinobase/src/ArduinoPinHandleMap.cpp C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinobase/src/MW_AnalogInput.cpp C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinobase/src/MW_SerialRead.cpp C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinobase/src/MW_SerialWrite.cpp $(START_DIR)/Pendolo_Inverso_ert_rtw/Pendolo_Inverso.c $(START_DIR)/Pendolo_Inverso_ert_rtw/Pendolo_Inverso_data.c $(START_DIR)/Pendolo_Inverso_ert_rtw/rtGetInf.c $(START_DIR)/Pendolo_Inverso_ert_rtw/rtGetNaN.c $(START_DIR)/Pendolo_Inverso_ert_rtw/rt_nonfinite.c $(START_DIR)/sfcn_encoder_wrapper.c C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinotarget/src/MW_ArduinoHWInit.cpp C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinobase/src/io_wrappers.cpp C:/ProgramData/MATLAB/SupportPackages/R2024a/toolbox/target/supportpackages/arduinotarget/scheduler/src/arduinoAVRScheduler.cpp
 
 MAIN_SRC = $(START_DIR)/Pendolo_Inverso_ert_rtw/ert_main.c
 
@@ -230,7 +230,7 @@ ALL_SRCS = $(SRCS) $(MAIN_SRC)
 ## OBJECTS
 ###########################################################################
 
-OBJS = MW_arduino_digitalio.o MW_PWM.o MW_PWMDriver.o ArduinoPinHandleMap.o MW_AnalogInput.o MW_SerialRead.o MW_SerialWrite.o Pendolo_Inverso.o Pendolo_Inverso_data.o rtGetInf.o rtGetNaN.o rt_nonfinite.o sfcn_encoder_wrapper.o sfcn_toPins_wrapper.o MW_ArduinoHWInit.o io_wrappers.o arduinoAVRScheduler.o
+OBJS = MW_arduino_digitalio.o MW_PWM.o MW_PWMDriver.o ArduinoPinHandleMap.o MW_AnalogInput.o MW_SerialRead.o MW_SerialWrite.o Pendolo_Inverso.o Pendolo_Inverso_data.o rtGetInf.o rtGetNaN.o rt_nonfinite.o sfcn_encoder_wrapper.o MW_ArduinoHWInit.o io_wrappers.o arduinoAVRScheduler.o
 
 MAIN_OBJ = ert_main.o
 
@@ -575,10 +575,6 @@ rt_nonfinite.o : $(START_DIR)/Pendolo_Inverso_ert_rtw/rt_nonfinite.c
 
 
 sfcn_encoder_wrapper.o : $(START_DIR)/sfcn_encoder_wrapper.c
-	$(CC) $(CFLAGS) -o "$@" "$<"
-
-
-sfcn_toPins_wrapper.o : $(START_DIR)/sfcn_toPins_wrapper.c
 	$(CC) $(CFLAGS) -o "$@" "$<"
 
 

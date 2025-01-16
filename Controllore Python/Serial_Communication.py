@@ -96,8 +96,7 @@ def main():
     model_file = manager.choose_file()
 
     try:
-        algorithm, low, high = manager.extract_info(model_file)
-        env.set_PWM_values(low_PWM=low, high_PWM=high)
+        algorithm= manager.extract_info(model_file)
     except:
         print("Il file non ha un formato valido, valori PWM predefiniti")
 
@@ -145,10 +144,8 @@ def main():
                 x_dot = read_line(ser)
                 phi = read_line(ser)
                 phi_dot = read_line(ser)
-
                 theta = math.pi + phi
                 theta_dot = phi_dot
-
                 # Se i controlli sono attivi, calcola la coppia da inviare
                 torqueOut = 0
                 if (mode_value == 1 and enable_control_value == 1):

@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Pendolo_Inverso'.
  *
- * Model version                  : 1.30
+ * Model version                  : 1.37
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Mon Jan 13 09:52:51 2025
+ * C/C++ source code generated on : Tue Jan 14 11:57:57 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: Atmel->AVR
@@ -22,17 +22,17 @@
 /* Block parameters (default storage) */
 P_Pendolo_Inverso_T Pendolo_Inverso_P = {
   /* Variable: Tc
-   * Referenced by: '<S7>/Analog Input3'
+   * Referenced by: '<S8>/Analog Input3'
    */
   0.005,
 
   /* Mask Parameter: DiscreteDerivative2_ICPrevScale
-   * Referenced by: '<S13>/UD'
+   * Referenced by: '<S14>/UD'
    */
   0.0,
 
   /* Mask Parameter: DiscreteDerivative_ICPrevScaled
-   * Referenced by: '<S10>/UD'
+   * Referenced by: '<S11>/UD'
    */
   0.0,
 
@@ -52,67 +52,67 @@ P_Pendolo_Inverso_T Pendolo_Inverso_P = {
   0.0,
 
   /* Expression: 511.5
-   * Referenced by: '<S14>/Constant1'
+   * Referenced by: '<S15>/Constant1'
    */
   511.5,
 
   /* Expression: 2658
-   * Referenced by: '<S9>/Constant'
+   * Referenced by: '<S10>/Constant'
    */
   2658.0,
 
   /* Expression: 656
-   * Referenced by: '<S9>/Constant1'
+   * Referenced by: '<S10>/Constant1'
    */
   656.0,
 
   /* Expression: 360
-   * Referenced by: '<S14>/Constant'
+   * Referenced by: '<S15>/Constant'
    */
   360.0,
 
   /* Expression: -0.75
-   * Referenced by: '<S14>/RodOffset'
+   * Referenced by: '<S15>/RodOffset'
    */
   -0.75,
 
   /* Computed Parameter: DiscreteZeroPole1_A
-   * Referenced by: '<S7>/Discrete Zero-Pole1'
+   * Referenced by: '<S8>/Discrete Zero-Pole1'
    */
   0.92774348632855286,
 
   /* Computed Parameter: DiscreteZeroPole1_C
-   * Referenced by: '<S7>/Discrete Zero-Pole1'
+   * Referenced by: '<S8>/Discrete Zero-Pole1'
    */
-  0.069580761474641456,
+  -0.069580761474641456,
 
   /* Computed Parameter: DiscreteZeroPole1_D
-   * Referenced by: '<S7>/Discrete Zero-Pole1'
+   * Referenced by: '<S8>/Discrete Zero-Pole1'
    */
-  0.0375,
+  -0.0375,
 
   /* Expression: pi/180
-   * Referenced by: '<S12>/Gain1'
+   * Referenced by: '<S13>/Gain1'
    */
   0.017453292519943295,
 
   /* Computed Parameter: TSamp_WtEt
-   * Referenced by: '<S13>/TSamp'
+   * Referenced by: '<S14>/TSamp'
    */
   200.0,
 
   /* Computed Parameter: DiscreteZeroPole6_A
-   * Referenced by: '<S7>/Discrete Zero-Pole6'
+   * Referenced by: '<S8>/Discrete Zero-Pole6'
    */
   0.90483741803595952,
 
   /* Computed Parameter: DiscreteZeroPole6_C
-   * Referenced by: '<S7>/Discrete Zero-Pole6'
+   * Referenced by: '<S8>/Discrete Zero-Pole6'
    */
   0.09048374180359596,
 
   /* Computed Parameter: DiscreteZeroPole6_D
-   * Referenced by: '<S7>/Discrete Zero-Pole6'
+   * Referenced by: '<S8>/Discrete Zero-Pole6'
    */
   0.05,
 
@@ -127,7 +127,7 @@ P_Pendolo_Inverso_T Pendolo_Inverso_P = {
   0.001,
 
   /* Computed Parameter: TSamp_WtEt_o
-   * Referenced by: '<S10>/TSamp'
+   * Referenced by: '<S11>/TSamp'
    */
   200.0,
 

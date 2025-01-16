@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Pendolo_Inverso'.
  *
- * Model version                  : 1.30
+ * Model version                  : 1.37
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Mon Jan 13 09:52:51 2025
+ * C/C++ source code generated on : Tue Jan 14 11:57:57 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: Atmel->AVR
@@ -37,7 +37,7 @@
 #define rtmSetTPtr(rtm, val)           ((rtm)->Timing.t = (val))
 #endif
 
-/* Used by FromWorkspace Block: '<S14>/From Workspace' */
+/* Used by FromWorkspace Block: '<S15>/From Workspace' */
 #ifndef rtInterpolate
 # define rtInterpolate(v1,v2,f1,f2)    (((v1)==(v2))?((double)(v1)): (((f1)*((double)(v1)))+((f2)*((double)(v2)))))
 #endif
@@ -70,25 +70,6 @@ SFB_EXTERN_C void sfcn_encoder_Terminate_wrapper(real_T *xD,
   const uint8_T *enc, const int_T p_width0,
   const uint8_T *pinA, const int_T p_width1,
   const uint8_T *pinB, const int_T p_width2);
-
-#undef SFB_EXTERN_C
-#ifdef __cplusplus
-#define SFB_EXTERN_C                   extern "C"
-#else
-#define SFB_EXTERN_C                   extern
-#endif
-
-SFB_EXTERN_C void sfcn_toPins_Start_wrapper(void);
-SFB_EXTERN_C void sfcn_toPins_Outputs_wrapper(const real_T *Enable,
-  const real_T *Analog,
-  const real_T *torqueOut,
-  const real_T *Mode,
-  const real_T *cartPos,
-  const real_T *Input,
-  real_T *EnableOut,
-  real_T *Dir,
-  real_T *PWMOut);
-SFB_EXTERN_C void sfcn_toPins_Terminate_wrapper(void);
 
 #undef SFB_EXTERN_C
 

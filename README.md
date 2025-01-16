@@ -21,7 +21,7 @@ La repository contiene i seguenti componenti principali:
     - **Classe principale**: `CartPoleEnv`
     - **Caratteristiche principali**:
         - Simula un sistema di pendolo su carrello con parametri come gravità, massa e caratteristiche del motore.
-        - Lo spazio delle azioni definisce il segnale PWM (Pulse Width Modulation) che controlla la forza applicata al carrello.
+        - Lo spazio delle azioni definisce la tensione da erogare al motore (-6V, 0V, +6V).
         - Lo spazio delle osservazioni include la posizione e la velocità del carrello, l'angolo del pendolo e la velocità angolare.
         - Include la fisica per il calcolo delle forze sul sistema e integra questi dati nel tempo utilizzando l'integrazione di Runge-Kutta del 4° Ordine.
         - L'ambiente può essere visualizzato (rendering) e supporta condizioni di terminazione basate sulla posizione del carrello o sull'angolo del pendolo.
@@ -30,11 +30,11 @@ La repository contiene i seguenti componenti principali:
     Questo file integra l'ambiente `CartPoleEnv` con l'algoritmo di apprendimento per rinforzo, in particolare il Deep Q-Network (DQN) dalla libreria `stable_baselines3`.
     - **Caratteristiche principali**:
         - Carica l'ambiente personalizzato `CartPoleEnv`.
-        - Vari modelli DQN pre-addestrati sono già inclusi nella cartella `Modelli Prposti`
+        - Vari modelli DQN e PPO pre-addestrati sono già inclusi
         - Viene caricato un modello e l'ambiente viene adattato ai valori del modello.
-        - Il modello DQN interagisce con l'ambiente prevedendo azioni da applicare in tempo reale con l'obiettivo di mantenere il pendolo in equilibrio.
-        - Per un controllo avanzato, il modello DQN può essere riaddestrato utilizzando diverse politiche o parametri 
-        - N.B.: Nella versione corrente il nome associato al modello deve avere una struttura del tipo `DQN_Cartpole_{**low**}_{**high**}`, dove i valori interi `low` e `high` verrano impostati come valori `self.low_PWM` e `self.high_PWM` dell'ambiente. (Per più informazioni aprire `Pendolo_Inverso_DC_Motor.py`)
+        - Il modello interagisce con l'ambiente prevedendo azioni da applicare in tempo reale con l'obiettivo di mantenere il pendolo in equilibrio.
+        - Per un controllo avanzato, il modello può essere riaddestrato utilizzando diverse politiche o parametri 
+        - N.B.: Nella versione corrente è consigliabile che il nome associato al modello segua una struttura del tipo `{**algorithm**}_CartPole_{**etc**}.zip`, dove il valore `algorithm` sia `DQN` o `PPO`
 
 
     3. **`Serial_Communication.py`**  
@@ -99,30 +99,12 @@ La repository contiene i seguenti componenti principali:
     In caso non fossero, già presenti, è necessario generare il codice C associato ai due blocchi `S-Function Builder`, questo può essere fatto aprendo i due blocchi presenti nel sottosistema `Pendulum Control` e cliccando il tasto `Build`.
 
 3. **Addestrare o Testare il Modello RL**  
-   È possibile modificare il file `PendulumGym.py` per addestrare un nuovo modello DQN o testare il modello pre-addestrato. Per addestrare un nuovo modello, decommentare le linee nel codice relative all'addestramento del modello:
-   
-   ```python
-   model = DQN("MlpPolicy", env, verbose=1)
-   model.learn(total_timesteps=100000, log_interval=5)
-   model.save("dqn_DC_Motor_cartpole_v100")
-   ```
-
-   Per visualizzare i test del modello caricato, assicurati di generare nel seguente modo l'ambiente env:
-
-   ```python
-   env = CartPoleEnv(render_mode='human')
-   ```
-
-   In fase di addestramento è consigliabile invece generare l'ambiente nel seguente modo, in quanto la fase di rendering va a rallentare l'addestramento:
-
-   ```python
-   env = CartPoleEnv()
-   ```
+   Eseguendo lo script contenuto nel file `PendulumGym.py` è possibile, seguendo le indicazioni a terminale, allenare nuovi modelli o testare modelli già presenti
 
 4. **Connessione all'Hardware**  
    Lo script `Serial_Communication.py` deve essere utilizzato per interfacciarsi con l'hardware tramite comunicazione seriale. 
 
-   Utilizzare input della tastiera per controllare l'hardware e il modello DQN prevederà le azioni necessarie per mantenere il pendolo in equilibrio in base ai dati ricevuti dai sensori dell'hardware.
+   Utilizzare input della tastiera per controllare l'hardware e il modello di RL prevederà le azioni necessarie per mantenere il pendolo in equilibrio in base ai dati ricevuti dai sensori dell'hardware.
 
     - Attivare `ENABLE` (tasto **1**) e la funzione `HOME` (tasto **2**).
     - Dopo averli attivati, il sistema si dirigerà verso il lato della base e cercherà di eseguire un'azione di homing (non spegnere mai il pulsante Home dopo che il sistema è stato messo in homing).

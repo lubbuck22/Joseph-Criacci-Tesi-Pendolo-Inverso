@@ -16,16 +16,24 @@ if user_choice == 1:
     algorithm = ALGORITHMS[user_choice - 1]
 
     learning_step = int(input(f"Inserisci il numero di step di apprendimento: "))
+
+    user_choice = int(input(f"Vuoi ricevere informazioni durante l'allenamento? 1: Sì, 2: No\n"))
+    user_verbose = 1 if user_choice == 1 else 0
+
+    if(user_verbose == 1):
+        user_log_interval = int(input(f"Inserisci ogni quanti episodi desideri ricevere informazioni di log: "))
+
     if algorithm == "DQN":
         user_exploration = float(input(f"Inserisci la frazione di esplorazione compreso tra 0 e 1 (DEFAULT = 0.5): "))
         user_final_eps = float(input(f"Inserisci il valore finale di epsilon compreso tra 0 e 1 (DEFAULT = 0.05): "))
-        model = DQN("MlpPolicy", env, verbose=1,
+        model = DQN("MlpPolicy", env, verbose=user_verbose,
                                 exploration_fraction= user_exploration,
                                 exploration_final_eps= user_final_eps,
         )
     elif algorithm == "PPO":
-        model = PPO("MlpPolicy", env, verbose=1)
-    model.learn(total_timesteps=learning_step, log_interval=1)
+        model = PPO("MlpPolicy", env, verbose=user_verbose)
+    
+    model.learn(total_timesteps=learning_step, log_interval=user_log_interval)
 
     save_choice = int(input(f"Vuoi salvare il modello in modo personalizzato? 1: Sì, 2: No\n"))
 

@@ -5,7 +5,7 @@ import math # Libreria per le operazioni matematiche
 from stable_baselines3 import DQN, PPO  # Algoritmo DQN per l'apprendimento per rinforzo
 from Pendolo_Inverso_DC_Motor import CartPoleEnv  # Ambiente per il pendolo inverso
 from File_and_Serial_Manager import Manager
-
+import numpy as np
 
 # Definizione di alcuni comandi da inviare tramite la comunicazione seriale
 ENABLE = 1.0
@@ -132,6 +132,10 @@ def main():
     # Variabile che memorizza il valore di coppia di uscita
     torqueOut = 0
 
+    # Memorizza i valori di osservazione dell'ambiente
+    states = []
+    applied_action = 1
+    # Ciclo principale del programma
     try:
         while True:
             # Controlla se ci sono dati in arrivo dalla seriale
@@ -150,9 +154,17 @@ def main():
                 torqueOut = 0
                 if (mode_value == 1 and enable_control_value == 1):
                     # Osservazione dell'ambiente (stato attuale)
-                    obs = [x, x_dot, theta, theta_dot]
-                    action, _states = model.predict(obs, deterministic=True)  # Prevede l'azione da eseguire
-                    torqueOut = env.action_to_torque(action)  # Converte l'azione in coppia
+                    obs = [x, x_dot, theta, theta_dot, applied_action]
+                    states.append(obs)
+
+                    # Prevede l'azione da eseguire
+                    action, _states = model.predict(obs, deterministic=True)
+
+                    # Converte l'azione in coppia
+                    torqueOut = env.action_to_torque(action)
+
+                    # Memorizza l'azione applicata
+                    applied_action = action
 
 
                 # Invia il messaggio e il valore di coppia
@@ -170,6 +182,9 @@ def main():
         # Chiudi la connessione seriale quando viene premuto Ctrl+C
         print("Connessione seriale interrotta")
     ser.close()
+    np.savetxt(f"Data_{algorithm}.csv", states, delimiter=',')
+    print(f"Dati salvati correttamente nel file 'Data_{algorithm}.csv'")
 
+        
 # Esegue la funzione principale
 main()

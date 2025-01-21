@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Pendolo_Inverso'.
  *
- * Model version                  : 1.37
+ * Model version                  : 1.40
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Tue Jan 14 11:57:57 2025
+ * C/C++ source code generated on : Mon Jan 20 08:42:33 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: Atmel->AVR
@@ -22,7 +22,7 @@
 /* Block parameters (default storage) */
 P_Pendolo_Inverso_T Pendolo_Inverso_P = {
   /* Variable: Tc
-   * Referenced by: '<S8>/Analog Input3'
+   * Referenced by: '<S7>/Analog Input3'
    */
   0.005,
 
@@ -57,12 +57,12 @@ P_Pendolo_Inverso_T Pendolo_Inverso_P = {
   511.5,
 
   /* Expression: 2658
-   * Referenced by: '<S10>/Constant'
+   * Referenced by: '<S9>/Constant'
    */
   2658.0,
 
   /* Expression: 656
-   * Referenced by: '<S10>/Constant1'
+   * Referenced by: '<S9>/Constant1'
    */
   656.0,
 
@@ -77,17 +77,17 @@ P_Pendolo_Inverso_T Pendolo_Inverso_P = {
   -0.75,
 
   /* Computed Parameter: DiscreteZeroPole1_A
-   * Referenced by: '<S8>/Discrete Zero-Pole1'
+   * Referenced by: '<S7>/Discrete Zero-Pole1'
    */
   0.92774348632855286,
 
   /* Computed Parameter: DiscreteZeroPole1_C
-   * Referenced by: '<S8>/Discrete Zero-Pole1'
+   * Referenced by: '<S7>/Discrete Zero-Pole1'
    */
   -0.069580761474641456,
 
   /* Computed Parameter: DiscreteZeroPole1_D
-   * Referenced by: '<S8>/Discrete Zero-Pole1'
+   * Referenced by: '<S7>/Discrete Zero-Pole1'
    */
   -0.0375,
 
@@ -102,17 +102,17 @@ P_Pendolo_Inverso_T Pendolo_Inverso_P = {
   200.0,
 
   /* Computed Parameter: DiscreteZeroPole6_A
-   * Referenced by: '<S8>/Discrete Zero-Pole6'
+   * Referenced by: '<S7>/Discrete Zero-Pole6'
    */
   0.90483741803595952,
 
   /* Computed Parameter: DiscreteZeroPole6_C
-   * Referenced by: '<S8>/Discrete Zero-Pole6'
+   * Referenced by: '<S7>/Discrete Zero-Pole6'
    */
   0.09048374180359596,
 
   /* Computed Parameter: DiscreteZeroPole6_D
-   * Referenced by: '<S8>/Discrete Zero-Pole6'
+   * Referenced by: '<S7>/Discrete Zero-Pole6'
    */
   0.05,
 

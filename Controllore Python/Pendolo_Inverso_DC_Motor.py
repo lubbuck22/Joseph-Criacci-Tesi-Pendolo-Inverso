@@ -106,7 +106,6 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.total_mass = self.masspole + self.masscart  # Massa totale del sistema
         self.polemass_length = self.masspole * self.length  # Prodotto tra la massa del pendolo e la sua lunghezza
 
-        self.old_action = 0.0  # PWM precedente applicata
         
         """ L'Arduino esegue il loop ogni self.tau = 0.005 secondi, ma comunica con Python ogni self.period = 0.05 secondi.
         Tra due comunicazioni, Arduino continua ad applicare l'ultimo segnale di controllo generato. """
@@ -130,6 +129,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
                 np.inf,
                 self.theta_threshold_radians * 2,
                 np.inf,
+                np.inf,
             ],
             dtype=np.float32,
         )
@@ -149,6 +149,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.state: np.ndarray | None = None
 
         self.steps_beyond_terminated = None
+        self.reset()
 
 
     # Metodo che aggiorna il sistema
@@ -157,30 +158,19 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             action
         ), f"{action!r} ({type(action)}) invalid"
         assert self.state is not None, "Call reset before using step method."
-        x, x_dot, theta, theta_dot = self.state
+        x, x_dot, theta, theta_dot, old_action = self.state
 
-        """ Poiché c'è sempre un ciclo di ritardo da quando Arduino genera i valori di 
-        [x, x_dot, theta, theta_dot] e quando riceve il nuovo segnale di controllo,
-        durante quel ciclo Arduino continua ad applicare il vecchio segnale di tensione. """
-         # Calcola la forza applicata in base alla tensione e alle caratteristiche del motore
-        force = self.action_to_force(self.old_action)
-        x, x_dot, theta, theta_dot = self.apply_force(force)
-        # Aggiorniamo lo stato a seguito dell'applicazione dell'azione
-        self.state = np.array((x, x_dot, theta, theta_dot), dtype=np.float64)
+        pendulum_state = np.array([x, x_dot, theta, theta_dot])
 
-        """ Nei cicli successivi, l'azione scelta determinerà il nuovo segnale di controllo """
-        self.old_action = action
-
-        # Applica la forza per più cicli per simulare l'aggiornamento dello stato
-        for i in range(int(self.period/self.tau) - 1):  
-            # Ricalcola la forza con la nuova tensione
+        for i in range(int(self.period/self.tau)):  
+            # Ricalcola la forza1
             force = self.action_to_force(action)          
-            x, x_dot, theta, theta_dot = self.apply_force(force)
+            x, x_dot, theta, theta_dot = self.apply_force(force, pendulum_state)
             # Aggiorniamo lo stato a seguito dell'applicazione dell'azione
-            self.state = np.array((x, x_dot, theta, theta_dot), dtype=np.float64)
-
+            pendulum_state = np.array([x, x_dot, theta, theta_dot])
+            self.state = np.array((x, x_dot, theta, theta_dot, action), dtype=np.float64)
         # Aggiorna lo stato del sistema
-        self.state = np.array((x, x_dot, theta, theta_dot), dtype=np.float64)
+        self.state = np.array((x, x_dot, theta, theta_dot, action), dtype=np.float64)
 
         # Controlla se l'episodio deve terminare
         terminated = bool(
@@ -223,11 +213,11 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     """ Questa funzione riceve in ingresso la forza da applicare al carrello,e attraverso l'equazione del moto
     calcola l'accelerazione lineare del carrello e l'accelerazione angolare del pendolo.
     L'integrazione di Runge-Kutta del 4° ordine viene utilizzata per incrementare le posizioni e le velocità """
-    def apply_force(self, force):
+    def apply_force(self, force, pendulum_state):
 
         # Funzione ausiliaria per calcolare la derivata del vettore di stato
-        def derivatives(state, force):
-            x, x_dot, theta, theta_dot = state
+        def derivatives(pendulum_state, force):
+            x, x_dot, theta, theta_dot = pendulum_state
             costheta = np.cos(theta)
             sintheta = np.sin(theta)
             tantheta = np.tan(theta)
@@ -243,23 +233,24 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             x_acc = -((self.inertia + self.polemass_length*self.length)*theta_acc)/(self.polemass_length*costheta) - self.gravity*tantheta
 
             return np.array([x_dot, x_acc, theta_dot, theta_acc])
-        state = np.array(self.state) # Vettore di Stato
+
         tau = self.tau
 
-        k1 = tau*derivatives(state, force)
-        k2 = tau*derivatives(state + k1/2.0, force)
-        k3 = tau*derivatives(state + k2/2.0, force)
-        k4 = tau*derivatives(state + k3, force)
+        k1 = tau*derivatives(pendulum_state, force)
+        k2 = tau*derivatives(pendulum_state + k1/2.0, force)
+        k3 = tau*derivatives(pendulum_state + k2/2.0, force)
+        k4 = tau*derivatives(pendulum_state + k3, force)
 
-        new_state = state + (1.0 / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4)
+        new_state = pendulum_state + (1.0 / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4)
 
-        self.state = tuple(new_state)
-        return self.state
+        #self.state = tuple(new_state)
+        x, x_dot, theta, theta_dot = new_state
+        return x, x_dot, theta, theta_dot
     
     
     def action_to_force(self, action):
 
-        x, x_dot, theta, theta_dot = self.state
+        x, x_dot, theta, theta_dot, old_action = self.state
 
         force = 0
 
@@ -318,12 +309,13 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         low, high = utils.maybe_parse_reset_bounds(
             options, -0.15, 0.15  # default low
         ) # default high
-        self.state = self.np_random.uniform(low=low, high=high, size=(4,))
+        self.state = self.np_random.uniform(low=low, high=high, size=(5,))
         self.steps_beyond_terminated = None
         self.current_reward = 0
 
-        x, x_dot, phi, phi_dot = self.state
-        self.state = x, x_dot, math.pi + phi, phi_dot
+
+        x, x_dot, phi, phi_dot, old_action = self.state
+        self.state = x, x_dot, math.pi + phi, phi_dot, 1
         # Applica variazioni ai valori nominali
         self.apply_uncertainty()
         

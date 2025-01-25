@@ -5,7 +5,46 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import make_interp_spline
 import time
-from scipy import signal
+
+# Funzione per visualizzare i risultati dell'allenamento
+def display_pendulum_control(pendulum_states, time_step):
+    states = np.array(pendulum_states)
+
+
+    # Supponiamo che ogni passo di tempo corrisponda a 0.05 secondi
+
+    labels = ['Posizione (m)', 'Velocità (m/s)', 'Posizione angolare (rad)', 'Velocità angolare (rad/s)', 'Azione']
+    titles = ['Evoluzione della posizione nel tempo', 'Evoluzione della velocità nel tempo', 'Evoluzione della posizione angolare nel tempo', 'Evoluzione della velocità angolare nel tempo', "Evoluzione dell'azione nel tempo"]
+
+    plt.figure(figsize=(15, 10))
+    for i in range(5):
+        plt.subplot(5, 1, i+1)
+        
+        if i<4:
+        # Interpolazione spline per una curva liscia
+            time = np.linspace(0, (len(states[:,i]) - 1) * time_step, len(states[:,i]))
+            time_smooth = np.linspace(time.min(), time.max(), 500)
+
+            spline = make_interp_spline(time, states[:, i])
+            state_smooth = spline(time_smooth)
+
+            plt.plot(time_smooth, state_smooth, label='Interpolazione Spline')
+            plt.plot(time, states[:, i], 'o', label='Punti Originali')
+        
+        else:
+            time = np.linspace(0, (len(states[:,i]) - 1) * time_step, len(states[:,i]))
+            time_smooth = np.linspace(time.min(), time.max(), 500)
+
+            plt.step(time, states[:, i], where='post')
+            plt.plot(time, states[:, i], 'o')
+        plt.xlabel('Tempo (s)')
+        plt.ylabel(labels[i])
+        plt.title(titles[i])
+        plt.legend()
+        plt.grid(True)
+    
+    plt.tight_layout()
+    plt.show()
 
 ALGORITHMS = ["DQN", "PPO"]
 
@@ -27,7 +66,8 @@ if user_choice == 1:
 
     if(user_verbose == 1):
         user_log_interval = int(input(f"Inserisci ogni quanti episodi desideri ricevere informazioni di log: "))
-
+    else:
+        user_log_interval = 1000
     if algorithm == "DQN":
         user_exploration = float(input(f"Inserisci la frazione di esplorazione compreso tra 0 e 1 (DEFAULT = 0.5): "))
         user_final_eps = float(input(f"Inserisci il valore finale di epsilon compreso tra 0 e 1 (DEFAULT = 0.05): "))
@@ -52,6 +92,8 @@ if user_choice == 1:
     del model # remove to demonstrate saving and loading
 
 elif user_choice == 2:
+    user_choice = float(input("Durata massima dell'episodio in secondi: "))
+    episode_length = user_choice
 
     print("Scegliere un modello da testare (N.B.: la finestra di dialogo potrebbe essere nascosta)")
     manager = Manager()
@@ -65,126 +107,31 @@ elif user_choice == 2:
         user_choice = int(input(f"Quale algoritmo vuoi utilizzare? 1: DQN, 2: PPO\n"))
         algorithm = ALGORITHMS[user_choice - 1]
 
+
+
     env = CartPoleEnv(render_mode='human')
     if algorithm == "DQN":
         model = DQN.load(model_file, env)
     elif algorithm == "PPO":
         model = PPO.load(model_file, env)
 
+    time_step = env.period
+    episode_steps = int(episode_length/time_step)
+
     obs, info = env.reset()
     states = []
+    states.append(obs[0])
 
     i = 0
-    while i<50:
+    while i<episode_steps:
         action, _states = model.predict(obs, deterministic=True)
-        states.append(obs)
         obs, reward, terminated, truncated, info = env.step(action)
-        time.sleep(0.05)
+        states.append(obs[0])
+        time.sleep(time_step)
         if terminated:
             obs, info = env.reset()
-            print("Episodio fallito")
+            print("Episodio terminato anticipatamente")
             break
         i+=1
 
-    
-    print("Episodio completato")
-    states = np.array(states)
-
-
-    # Supponiamo che ogni passo di tempo corrisponda a 0.05 secondi
-    time_step = 0.05
-    time = np.arange(0, len(states) * time_step, time_step)
-    time_smooth = np.linspace(time.min(), time.max(), 500)
-
-    plt.figure(figsize=(15, 10))
-
-    ########################################
-    # Plotta la posizione
-    ########################################
-    plt.subplot(5, 1, 1)
-    # Interpolazione spline per una curva liscia
-    spline = make_interp_spline(time, states[:, 0])
-    state_smooth = spline(time_smooth)
-    
-    # Plotta tutti e tre gli elementi sullo stesso grafico
-    plt.plot(time_smooth, state_smooth, label='Interpolazione Spline')
-    plt.plot(time, states[:, 0], 'o', label='Punti Originali')
-    
-    plt.xlabel('Tempo (s)')
-    plt.ylabel(f'Posizione (m)')
-    plt.title(f'Evoluzione della posizione nel tempo')
-    plt.legend()
-    plt.grid(True)
-
-
-    ########################################
-    # Plotta la velocità
-    ########################################
-    plt.subplot(5, 1, 2)
-    # Interpolazione spline per una curva liscia
-    spline = make_interp_spline(time, states[:, 1])
-    state_smooth = spline(time_smooth)
-    
-    # Plotta tutti e tre gli elementi sullo stesso grafico
-    plt.plot(time_smooth, state_smooth, label='Interpolazione Spline')
-    plt.plot(time, states[:, 1], 'o', label='Punti Originali')
-    
-    plt.xlabel('Tempo (s)')
-    plt.ylabel(f'Velocità (m/s)')
-    plt.title(f'Evoluzione della velocità nel tempo')
-    plt.legend()
-    plt.grid(True)
-
-
-    ########################################
-    # Plotta la posizione angolare
-    ########################################
-    plt.subplot(5, 1, 3)
-    # Interpolazione spline per una curva liscia
-    spline = make_interp_spline(time, states[:, 2])
-    state_smooth = spline(time_smooth)
-    
-    # Plotta tutti e tre gli elementi sullo stesso grafico
-    plt.plot(time_smooth, state_smooth, label='Interpolazione Spline')
-    plt.plot(time, states[:, 2], 'o', label='Punti Originali')
-    
-    plt.xlabel('Tempo (s)')
-    plt.ylabel(f'Posizione angolare (rad)')
-    plt.title(f'Evoluzione della posizione angolare nel tempo')
-    plt.legend()
-    plt.grid(True)
-
-
-    ########################################
-    # Plotta la velocità angolare
-    ########################################
-    plt.subplot(5, 1, 4)
-    # Interpolazione spline per una curva liscia
-    spline = make_interp_spline(time, states[:, 3])
-    state_smooth = spline(time_smooth)
-    
-    # Plotta tutti e tre gli elementi sullo stesso grafico
-    plt.plot(time_smooth, state_smooth, label='Interpolazione Spline')
-    plt.plot(time, states[:, 3], 'o', label='Punti Originali')
-    
-    plt.xlabel('Tempo (s)')
-    plt.ylabel(f'Velocità angolare (rad/s)')
-    plt.title(f'Evoluzione della velocità angolare nel tempo')
-    plt.legend()
-    plt.grid(True)
-
-
-    ########################################
-    # Plotta l'azione
-    ########################################
-    plt.subplot(5, 1, 5)
-
-    plt.step(time, states[:, 4], where='post')
-    plt.plot(time, states[:, 4], 'o')    
-    plt.xlabel('Tempo (s)')
-    plt.ylabel(f'Azione')
-    plt.title(f"Evoluzione dell'azione nel tempo")
-    plt.grid(True)
-
-    plt.tight_layout()
-    plt.show()
+    display_pendulum_control(states, time_step)

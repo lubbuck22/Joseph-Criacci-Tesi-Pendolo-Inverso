@@ -135,6 +135,7 @@ def main():
     # Memorizza i valori di osservazione dell'ambiente
     states = []
     applied_action = 1
+    observations = [[] for _ in range(10)]
     # Ciclo principale del programma
     try:
         while True:
@@ -150,34 +151,47 @@ def main():
                 phi_dot = read_line(ser)
                 theta = math.pi + phi
                 theta_dot = phi_dot
-                # Se i controlli sono attivi, calcola la coppia da inviare
-                torqueOut = 0
-                if (mode_value == 1 and enable_control_value == 1):
-                    # Osservazione dell'ambiente (stato attuale)
-                    obs = [x, x_dot, theta, theta_dot, applied_action]
-                    states.append(obs)
 
+                theta = theta % (2*math.pi)
+                # Aggiorna l'osservazione più recente
+                newest_observation = [x, x_dot, theta, theta_dot, applied_action]
+                # Aggiorna la lista delle osservazioni
+                observations.insert(0, newest_observation)
+                observations.pop()
+
+                states.append(newest_observation)
+
+                torqueOut = 0
+                # Se i controlli sono attivi, calcola la coppia da inviare
+                if (mode_value == 1 and enable_control_value == 1):
+
+
+                    if(phi*180/np.pi < -10):
+                        action = 2
+                    elif(phi*180/np.pi > 10):
+                        action = 0
+                    else:
                     # Prevede l'azione da eseguire
-                    action, _states = model.predict(obs, deterministic=True)
+                        action, _states = model.predict(observations, deterministic=True)
 
                     # Converte l'azione in coppia
                     torqueOut = env.action_to_torque(action)
 
                     # Memorizza l'azione applicata
                     applied_action = action
-
-
+                
                 # Invia il messaggio e il valore di coppia
                 sent_message = message_to_send
                 send(sent_message, ser)
                 send(torqueOut, ser)
 
+                if(enable_control_value == 0):
+                    applied_action = 1
                 # Resetta il messaggio dopo l'invio e mostra i valori sul terminale
                 if(sent_message != 0):
                     message_to_send = 0
                     print(CLEAN_TERMINAL)
                     print(f'Enable: {enable_value}\nHome: {home_value}\nMove Center: {move_center_value}\nMode: {mode_value}\nEnable Control: {enable_control_value}')
-
     except KeyboardInterrupt:
         # Chiudi la connessione seriale quando viene premuto Ctrl+C
         print("Connessione seriale interrotta")

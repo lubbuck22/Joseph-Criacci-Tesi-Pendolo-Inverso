@@ -27,11 +27,11 @@ La repository contiene i seguenti componenti principali:
         - L'ambiente può essere visualizzato (rendering) e supporta condizioni di terminazione basate sulla posizione del carrello o sull'angolo del pendolo.
 
     2. **`PendulumGym.py`**  
-    Questo file integra l'ambiente `CartPoleEnv` con l'algoritmo di apprendimento per rinforzo, in particolare il Deep Q-Network (DQN) dalla libreria `stable_baselines3`.
+    Questo file integra l'ambiente `CartPoleEnv` con l'algoritmo di apprendimento per rinforzo, in particolare il Deep Q-Network (DQN) e il Proximal policy optimization (PPO) dalla libreria `stable_baselines3`.
     - **Caratteristiche principali**:
         - Carica l'ambiente personalizzato `CartPoleEnv`.
         - Vari modelli DQN e PPO pre-addestrati sono già inclusi
-        - Viene caricato un modello e l'ambiente viene adattato ai valori del modello.
+        - Viene caricato un modello e l'ambiente.
         - Il modello interagisce con l'ambiente prevedendo azioni da applicare in tempo reale con l'obiettivo di mantenere il pendolo in equilibrio.
         - Per un controllo avanzato, il modello può essere riaddestrato utilizzando diverse politiche o parametri 
         - N.B.: Nella versione corrente è consigliabile che il nome associato al modello segua una struttura del tipo `{**algorithm**}_CartPole_{**etc**}.zip`, dove il valore `algorithm` sia `DQN` o `PPO`

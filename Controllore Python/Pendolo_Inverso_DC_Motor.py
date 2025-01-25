@@ -26,19 +26,19 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
     Lo spazio delle azioni è un array unidimensionale che può assumere valori {0, 1, 2}. La direzione verso cui indirizzare la forza.
     
-            Azione                 |                Effetto                      |
-    _______________________________|_____________________________________________|
-    -           0:                 |        Spingi nella direzione negativa      |
-    -           1:                 |                Stai fermo                   |
-    -           2:                 |        Spingi nella direzione positiva      |
-    _______________________________|_____________________________________________|
+    |       Azione                 |                Effetto                      |
+    |------------------------------|---------------------------------------------|
+    |           0:                 |        Spingi nella direzione negativa      |
+    |           1:                 |                Stai fermo                   |
+    |           2:                 |        Spingi nella direzione positiva      |
+    |______________________________|_____________________________________________|
 
     **Nota**: L'azione 1 non ha effetto sul sistema, ma è stata aggiunta per completezza.
 
 
     ## Spazio delle osservazioni
 
-    L'osservazione è un array con forma `(4,)` con i seguenti valori che corrispondono a posizioni e velocità:
+    L'osservazione è un array con forma `(10,5)` ciascuna riga rappresenta lo stato del sistema in un determinato istante.:
 
     | Num | Osservazione                  | Min                 | Max               |
     |-----|-------------------------------|---------------------|-------------------|
@@ -46,6 +46,8 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     | 1   | Velocità del carrello         | -Inf                | Inf               |
     | 2   | Angolo del pendolo            | ~ -0.418 rad (-24°) | ~ 0.418 rad (24°) |
     | 3   | Velocità angolare del pendolo | -Inf                | Inf               |
+    | 4   | Azione                        | 0                   | 2                 |
+    |_____|_______________________________|_____________________|___________________|
 
     **Nota:** Sebbene i limiti sopra indichino i valori possibili per ogni elemento dello spazio di osservazione,
     non riflettono necessariamente i valori consentiti nello stato dell'episodio. In particolare:
@@ -58,8 +60,6 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     La soglia di ricompensa predefinita è 500.
     Inoltre, la ricompensa è proporzionale alla posizione del carrello, con maggiori ricompense se il carrello è vicino al centro.
 
-    ## Stato iniziale
-    Le osservazioni sono assegnate a valori casuali uniformi in `(-0.05, 0.05)`.
 
     ## Fine dell'episodio
     L'episodio termina se una delle seguenti condizioni si verifica:
@@ -93,7 +93,6 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.friction_coefficient_nominal = 0.0000765  # Coefficiente di attrito
         
         self.uncertainty = 0.0 # Margine di errore per i valori nominali
-        self.noise = 0.0  # Rumore
 
         #### Valori reali
         self.masscart = self.apply_error(self.masscart_nominal, self.uncertainty)
@@ -117,7 +116,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.torque_pwm_constant = 5.8824  # Costante per convertire in coppia il valore PWM
 
         # Angolo oltre il quale l'episodio fallisce
-        self.theta_threshold_radians = 12 * (2*math.pi) / 360  # ±24° in radianti
+        self.theta_threshold_radians = 12 * (2*math.pi) / 360  # ±12° in radianti
         self.x_threshold = 0.4  # Posizione limite del carrello
 
         self.max_reward = 500  # Ricompensa massima
@@ -133,10 +132,13 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             ],
             dtype=np.float32,
         )
+        # Ripeti l'array `high` per creare una matrice di dimensioni (10, 5)
+        high_matrix = np.tile(high, (10, 1))
 
         # Spazio delle azioni e delle osservazioni
         self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(-high, high, dtype=np.float32)
+        self.observation_space = spaces.Box(-high_matrix, high_matrix, dtype=np.float32)
+
 
         self.render_mode = render_mode
 
@@ -146,10 +148,10 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.screen = None
         self.clock = None
         self.isopen = True
-        self.state: np.ndarray | None = None
+        self.state = []
 
         self.steps_beyond_terminated = None
-        self.reset()
+
 
 
     # Metodo che aggiorna il sistema
@@ -158,19 +160,24 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             action
         ), f"{action!r} ({type(action)}) invalid"
         assert self.state is not None, "Call reset before using step method."
-        x, x_dot, theta, theta_dot, old_action = self.state
+        x, x_dot, theta, theta_dot, applied_action = self.state[0]
+
+        # Mantieni l'angolo tra 0 e 2*pi
+        theta = theta % (2*math.pi)
 
         pendulum_state = np.array([x, x_dot, theta, theta_dot])
 
         for i in range(int(self.period/self.tau)):  
-            # Ricalcola la forza1
-            force = self.action_to_force(action)          
+            # Ricalcola la forza
+            force = self.action_to_force(action, pendulum_state)          
             x, x_dot, theta, theta_dot = self.apply_force(force, pendulum_state)
+            theta = theta % (2*math.pi)
             # Aggiorniamo lo stato a seguito dell'applicazione dell'azione
             pendulum_state = np.array([x, x_dot, theta, theta_dot])
-            self.state = np.array((x, x_dot, theta, theta_dot, action), dtype=np.float64)
+
         # Aggiorna lo stato del sistema
-        self.state = np.array((x, x_dot, theta, theta_dot, action), dtype=np.float64)
+        self.state.insert(0, [x, x_dot, theta, theta_dot, action]) # Aggiunge il nuovo stato in cima alla lista
+        self.state.pop() # Rimuove l'ultimo stato per mantenere la lista di lunghezza 10
 
         # Controlla se l'episodio deve terminare
         terminated = bool(
@@ -243,23 +250,26 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
         new_state = pendulum_state + (1.0 / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4)
 
-        #self.state = tuple(new_state)
         x, x_dot, theta, theta_dot = new_state
         return x, x_dot, theta, theta_dot
     
     
-    def action_to_force(self, action):
+    def action_to_force(self, action, pendulum_state):
 
-        x, x_dot, theta, theta_dot, old_action = self.state
+        x, x_dot, theta, theta_dot = pendulum_state
 
         force = 0
 
         if (action == 0): #Forza negativa
             force =  -(2.6909 - 3.1548*(-x_dot))
+            if(force > 0):
+                force = 0
         elif (action == 1): #Forza nulla
             force = 0
         elif (action == 2): #Forza positiva
             force = 2.6909 - 3.1548*x_dot
+            if(force < 0):
+                force = 0
         
         return force
 
@@ -303,19 +313,19 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         super().reset(seed=seed)
         # Note that if you use custom reset bounds, it may lead to out-of-bound
         # state/observations.
-        """ low, high = utils.maybe_parse_reset_bounds(
-            options, -0.05, 0.05  # default low
-        )  # default high """
+        
+        self.state = []
         low, high = utils.maybe_parse_reset_bounds(
             options, -0.15, 0.15  # default low
         ) # default high
-        self.state = self.np_random.uniform(low=low, high=high, size=(5,))
+        x, x_dot, phi, phi_dot = self.np_random.uniform(low=low, high=high, size=(4,))
+
+
+        for i in range(10):
+            self.state.append([x, x_dot, math.pi + phi, phi_dot, 1])
         self.steps_beyond_terminated = None
         self.current_reward = 0
 
-
-        x, x_dot, phi, phi_dot, old_action = self.state
-        self.state = x, x_dot, math.pi + phi, phi_dot, 1
         # Applica variazioni ai valori nominali
         self.apply_uncertainty()
         
@@ -366,7 +376,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         if self.state is None:
             return None
 
-        x = self.state
+        x = self.state[0]
 
         self.surf = pygame.Surface((self.screen_width, self.screen_height))
         self.surf.fill((255, 255, 255))

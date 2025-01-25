@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'Pendolo_Inverso'.
  *
- * Model version                  : 1.40
+ * Model version                  : 1.41
  * Simulink Coder version         : 24.1 (R2024a) 19-Nov-2023
- * C/C++ source code generated on : Mon Jan 20 08:42:33 2025
+ * C/C++ source code generated on : Wed Jan 22 09:53:20 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: Atmel->AVR
